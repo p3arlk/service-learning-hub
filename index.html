@@ -3,253 +3,826 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Service-Learning Hub | Centralized Programmes</title>
-    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/main.min.css' rel='stylesheet' />
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/main.min.js'></script>
-    <script src='https://cdn.jsdelivr.net/npm/dayjs@1.11.13/dayjs.min.js'></script>
+    <title>NTU Care, Serve, Learn (CSL) - Programme Hub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * { box-sizing: border-box; font-family: system-ui, 'Segoe UI', sans-serif; }
-        body { background: #f0f7f0; margin: 0; padding: 20px; }
-        .app-container { max-width: 1400px; margin: 0 auto; }
-        h1 { color: #1b4d3e; }
-        .tabs { display: flex; gap: 8px; border-bottom: 2px solid #cbd5e0; flex-wrap: wrap; margin-bottom: 24px; }
-        .tab-btn { background: none; border: none; padding: 10px 20px; font-size: 0.9rem; font-weight: 600; cursor: pointer; color: #2d6a4f; border-radius: 30px 30px 0 0; transition: 0.2s; }
-        .tab-btn.active { background: white; color: #1b4d3e; border-bottom: 3px solid #2d6a4f; }
-        .tab-pane { display: none; background: white; border-radius: 24px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .tab-pane.active { display: block; }
-        .filters-bar { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; background: #f9fef7; padding: 16px; border-radius: 40px; align-items: flex-end; }
-        .filter-group { display: flex; flex-direction: column; gap: 4px; min-width: 130px; }
-        .filter-group label { font-weight: 700; font-size: 0.7rem; color: #1e3a2f; }
-        select, input { padding: 6px 12px; border-radius: 40px; border: 1px solid #cbd5e1; background: white; }
-        .programme-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .card { background: white; border-radius: 20px; padding: 16px; border: 1px solid #e2eddf; transition: 0.2s; }
-        .card:hover { box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
-        .card h3 { margin: 0 0 6px; color: #1b4d3e; font-size: 1.1rem; }
-        .badge { background: #e6f4ea; padding: 3px 10px; border-radius: 50px; font-size: 0.7rem; display: inline-block; margin: 3px 3px 0 0; }
-        .btn { background: #eef2e6; border: none; padding: 6px 12px; border-radius: 40px; cursor: pointer; font-size: 0.8rem; transition: 0.2s; }
-        .btn:hover { background: #d4e2cc; }
-        .btn-primary { background: #2d6a4f; color: white; }
-        .btn-primary:hover { background: #1b4d3e; }
-        .compare-panel { margin-top: 24px; background: #f4faf2; border-radius: 24px; padding: 16px; }
-        .compare-card { background: white; border-radius: 16px; padding: 14px; margin: 10px 0; border-left: 4px solid #2d6a4f; }
-        .peer-message-item { background: #f9fbf7; border-radius: 16px; padding: 12px; margin-bottom: 10px; }
-        .quiz-step { background: #fefaf0; border-radius: 20px; padding: 14px; margin-bottom: 14px; }
-        .recommendation-card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; border-left: 5px solid #2d6a4f; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
-        @media (max-width: 700px) { .filters-bar { flex-direction: column; align-items: stretch; } }
-        footer { text-align: center; margin-top: 30px; color: #5a6e5a; font-size: 0.75rem; }
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+        body {
+            background: #f4f7fb;
+            margin: 0;
+            padding: 24px;
+        }
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        /* Login Overlay */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .login-box {
+            background: white;
+            border-radius: 32px;
+            padding: 40px;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        .login-box h2 {
+            color: #00423b;
+            margin-bottom: 20px;
+        }
+        .login-box input {
+            width: 100%;
+            padding: 14px;
+            margin: 12px 0;
+            border-radius: 40px;
+            border: 1px solid #cbd5e1;
+            font-size: 1rem;
+        }
+        .login-error {
+            color: #d9534f;
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+        .user-info {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding: 12px 20px;
+            background: #eef3ec;
+            border-radius: 60px;
+        }
+        .logout-btn {
+            background: none;
+            border: none;
+            color: #d9534f;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        /* Header */
+        .ntu-header {
+            background: linear-gradient(135deg, #00423b, #006653);
+            color: white;
+            padding: 32px 28px;
+            border-radius: 32px;
+            margin-bottom: 32px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        .ntu-header h1 {
+            margin: 0 0 8px;
+            font-size: 2rem;
+        }
+        .ntu-header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+            border-bottom: 2px solid #cbd5e1;
+            padding-bottom: 8px;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: #2c5f5a;
+            border-radius: 40px;
+            transition: 0.2s;
+        }
+        .tab-btn.active {
+            background: #00423b;
+            color: white;
+        }
+        .tab-pane {
+            display: none;
+            background: white;
+            border-radius: 28px;
+            padding: 28px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+        }
+        .tab-pane.active {
+            display: block;
+        }
+        /* Category Cards */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 28px;
+            margin-bottom: 40px;
+        }
+        .category-card {
+            background: white;
+            border-radius: 28px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e0ebe8;
+        }
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0,66,59,0.15);
+            border-color: #00423b;
+        }
+        .category-icon {
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+        }
+        .category-card h3 {
+            margin: 0 0 8px;
+            color: #00423b;
+        }
+        .example-badge {
+            background: #f0e6d2;
+            color: #8a6e3d;
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-top: 8px;
+        }
+        /* Programme Cards */
+        .programme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+        .prog-card {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid #e2eddf;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .prog-card:hover {
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .badge {
+            background: #e6f4ea;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            display: inline-block;
+            margin: 4px 4px 0 0;
+        }
+        .badge-warning {
+            background: #fff3e0;
+            color: #b86b00;
+        }
+        .btn {
+            background: #eef2e6;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 12px;
+            display: inline-block;
+            text-decoration: none;
+            color: #1a2e2a;
+        }
+        .btn-primary {
+            background: #00423b;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #006653;
+        }
+        .detail-view {
+            background: #f9fef7;
+            border-radius: 28px;
+            padding: 24px;
+            margin-top: 20px;
+        }
+        .partner-section {
+            background: #eef3ec;
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            color: #00423b;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .compare-panel {
+            background: #f0f5f2;
+            border-radius: 24px;
+            padding: 16px;
+            margin-top: 32px;
+        }
+        .compare-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin: 12px 0;
+            border-left: 5px solid #00423b;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #00423b;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 16px;
+            border: 1px solid #cbd5e1;
+            font-family: inherit;
+        }
+        .ranking-row {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .ranking-number {
+            font-weight: bold;
+            color: #00423b;
+            min-width: 30px;
+        }
+        .message-box {
+            background: #f0f5f2;
+            border-radius: 20px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        hr {
+            margin: 20px 0;
+        }
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 16px;
+            margin-top: 16px;
+        }
+        .peer-message-item {
+            background: #f9fbf7;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .inbox-message {
+            background: #eef3ec;
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        @media (max-width: 700px) {
+            body { padding: 16px; }
+            .tab-btn { padding: 8px 16px; }
+        }
     </style>
 </head>
 <body>
+<div id="loginOverlay" class="login-overlay">
+    <div class="login-box">
+        <i class="fas fa-university" style="font-size: 3rem; color: #00423b;"></i>
+        <h2>NTU CSL Programme Hub</h2>
+        <p>Please sign in with your NTU account</p>
+        <input type="email" id="loginEmail" placeholder="NTU Email (@e.ntu.edu.sg or @ntu.edu.sg)">
+        <input type="password" id="loginPassword" placeholder="Password">
+        <button id="loginBtn" class="btn btn-primary" style="width:100%; padding:12px;">Sign In</button>
+        <div id="loginError" class="login-error"></div>
+        <p style="margin-top: 16px; font-size: 0.75rem; color: #666;">Demo credentials: any @e.ntu.edu.sg email + any password</p>
+    </div>
+</div>
+
+<div id="mainApp" style="display:none;">
 <div class="app-container">
-    <h1><i class="fas fa-hands-helping"></i> Service-Learning Programmes Hub</h1>
-    <p>Clear, centralized info · Compare · Sign up · Peer advice</p>
-    
+    <div class="user-info">
+        <span><i class="fas fa-user-circle"></i> <span id="currentUserEmail"></span></span>
+        <button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+    <div class="ntu-header">
+        <h1><i class="fas fa-hands-helping"></i> NTU Care, Serve, Learn (CSL)</h1>
+        <p>Discover service-learning programmes · Compare · Get matched · Fulfil your graduation requirement</p>
+    </div>
+
     <div class="tabs">
-        <button class="tab-btn active" data-tab="browse">📋 Browse & Filter</button>
-        <button class="tab-btn" data-tab="compare">⚖️ Compare (max 3)</button>
-        <button class="tab-btn" data-tab="calendar">📅 Calendar + Availability</button>
+        <button class="tab-btn active" data-tab="browse">📚 Browse by Category</button>
+        <button class="tab-btn" data-tab="signup">📝 Sign Up & Submit Choices</button>
+        <button class="tab-btn" data-tab="compare">⚖️ Compare</button>
+        <button class="tab-btn" data-tab="quiz">✨ Smart Quiz (Ranked)</button>
         <button class="tab-btn" data-tab="peer">💬 Peer Matching</button>
-        <button class="tab-btn" data-tab="quiz">✨ Smart Quiz → Top 3</button>
+        <button class="tab-btn" data-tab="inbox">📥 Messages</button>
     </div>
 
     <!-- BROWSE TAB -->
     <div id="browse" class="tab-pane active">
-        <div class="filters-bar">
-            <div class="filter-group"><label>🌱 Cause / Interest</label><select id="interestFilter"><option value="all">All</option><option>Environment</option><option>Education</option><option>Public Health</option><option>Community Building</option></select></div>
-            <div class="filter-group"><label>⏱ Time Commitment</label><select id="commitFilter"><option value="all">All</option><option>One-day event</option><option>Weekly (2-4h)</option><option>Intensive</option><option>Semester-long</option></select></div>
-            <div class="filter-group"><label>📍 Location</label><select id="locationFilter"><option value="all">All</option><option>Remote</option><option>Downtown Hub</option><option>Eastside</option><option>Westside</option></select></div>
-            <div class="filter-group"><label>🛠 Skills needed</label><select id="skillFilter"><option value="all">All</option><option>Teaching</option><option>Tech</option><option>Event coordination</option><option>Data analysis</option></select></div>
-            <button id="resetFilters" class="btn btn-primary">Reset filters</button>
+        <div id="categoriesView">
+            <h2><i class="fas fa-th-large"></i> Choose a strategic thrust</h2>
+            <div class="categories-grid" id="categoriesContainer"></div>
         </div>
-        <div id="programmeList" class="programme-grid"></div>
+        <div id="programmesView" style="display:none;">
+            <button class="back-btn" id="backToCategoriesBtn"><i class="fas fa-arrow-left"></i> Back to all thrusts</button>
+            <h2 id="categoryTitle"></h2>
+            <div id="programmesList" class="programme-grid"></div>
+        </div>
+        <div id="detailView" style="display:none;">
+            <button class="back-btn" id="backToProgrammesBtn"><i class="fas fa-arrow-left"></i> Back to programmes</button>
+            <div id="programmeDetail"></div>
+        </div>
         <div class="compare-panel">
-            <strong><i class="fas fa-layer-group"></i> Compare shortlist</strong> <span id="compareCount">0</span> selected
+            <strong><i class="fas fa-balance-scale"></i> Compare shortlist</strong> <span id="compareCount">0</span> selected
             <button id="viewCompareBtn" class="btn btn-primary">Go to Compare tab</button>
-            <div id="compareMiniList" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px;"></div>
         </div>
+    </div>
+
+    <!-- SIGN UP FORM TAB -->
+    <div id="signup" class="tab-pane">
+        <h2><i class="fas fa-user-plus"></i> Student Registration & Programme Selection</h2>
+        <p>Register your interest and rank your top 3 programme choices. The CSL office will contact you for placement confirmation.</p>
+        <form id="signupForm">
+            <div class="form-group">
+                <label>Full Name *</label>
+                <input type="text" id="studentName" required placeholder="e.g., Tan Wei Ming">
+            </div>
+            <div class="form-group">
+                <label>Email Address *</label>
+                <input type="email" id="studentEmail" required placeholder="e.g., weiming.tan@e.ntu.edu.sg">
+            </div>
+            <div class="form-group">
+                <label>Matriculation Number *</label>
+                <input type="text" id="matricNo" required placeholder="e.g., U1234567X">
+            </div>
+            <div class="form-group">
+                <label>School / Faculty *</label>
+                <select id="school">
+                    <option value="">Select your school</option>
+                    <option>College of Engineering</option>
+                    <option>College of Science</option>
+                    <option>Nanyang Business School</option>
+                    <option>College of Humanities, Arts, & Social Sciences</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>🎯 Top Choice Programme (Rank 1) *</label>
+                <select id="choice1" required>
+                    <option value="">Select programme</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>🥈 Second Choice Programme (Rank 2) *</label>
+                <select id="choice2" required>
+                    <option value="">Select programme</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>🥉 Third Choice Programme (Rank 3) *</label>
+                <select id="choice3" required>
+                    <option value="">Select programme</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Additional Notes (optional)</label>
+                <textarea id="notes" rows="3" placeholder="Any special considerations, availability constraints, or questions for the CSL office..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%; padding:14px;"><i class="fas fa-paper-plane"></i> Submit Registration</button>
+        </form>
+        <div id="signupSuccess" style="display:none;" class="success-message"></div>
     </div>
 
     <!-- COMPARE TAB -->
     <div id="compare" class="tab-pane">
-        <h2><i class="fas fa-balance-scale"></i> Side-by-side comparison</h2>
-        <div id="compareContainer" style="margin-top: 16px;">Select programmes from Browse tab (max 3)</div>
-        <p style="margin-top: 20px;"><small><i class="fas fa-info-circle"></i> Compare deadlines, skills, location, and commitment.</small></p>
+        <h2>Side-by-side comparison</h2>
+        <div id="compareContainer">Select programmes from Browse to compare (max 3).</div>
     </div>
 
-    <!-- CALENDAR TAB -->
-    <div id="calendar" class="tab-pane">
-        <h2><i class="fas fa-calendar-alt"></i> Programme timeline & availability</h2>
-        <p>Key service-learning sessions are shown in green. Click any event for details.</p>
-        <div id="calendarContainer" style="margin-top: 16px;"></div>
-        <div style="margin-top: 24px; background: #eef3ec; border-radius: 20px; padding: 16px;">
-            <label><i class="fas fa-plus-circle"></i> Simulate personal busy time: </label>
-            <input type="datetime-local" id="blockStart" /> to <input type="datetime-local" id="blockEnd" />
-            <button id="addBusySlot" class="btn">➕ Mark busy</button>
-            <p><small>🔴 Red = your busy slots. Helps check programme availability.</small></p>
+    <!-- QUIZ TAB (Ranked Top 3) -->
+    <div id="quiz" class="tab-pane">
+        <h2><i class="fas fa-clipboard-list"></i> Find your best-fit CSL programme</h2>
+        <p>Answer a few questions to get ranked recommendations (1st, 2nd, 3rd choice based on suitability).</p>
+        <div style="background:#fefaf0; border-radius:24px; padding:20px;">
+            <div class="form-group"><label>1. Which community inspires you most?</label>
+                <select id="quizCause">
+                    <option value="active">Active Ageing – Supporting seniors in the community</option>
+                    <option value="children">Children & Teens – Mentoring youth and young students</option>
+                    <option value="diverse">Diverse Abilities – Supporting persons with special needs</option>
+                </select>
+            </div>
+            <div class="form-group"><label>2. What kind of role suits you best?</label>
+                <select id="quizRole">
+                    <option value="direct">Direct engagement – Working face-to-face with beneficiaries</option>
+                    <option value="planning">Planning & organising – Behind-the-scenes coordination</option>
+                    <option value="mixed">Mixed – Both direct service and planning</option>
+                </select>
+            </div>
+            <div class="form-group"><label>3. What skill do you want to develop most?</label>
+                <select id="quizSkill">
+                    <option value="comm">Communication & Outreach – Talking, listening, connecting</option>
+                    <option value="events">Event Planning – Organising activities and programmes</option>
+                    <option value="leadership">Leadership & Mentoring – Guiding others</option>
+                </select>
+            </div>
+            <div class="form-group"><label>4. How much time can you commit weekly?</label>
+                <select id="quizTime">
+                    <option value="5-10">5-10 hours per week</option>
+                    <option value="10-15">10-15 hours per week</option>
+                    <option value="15+">15+ hours per week</option>
+                </select>
+            </div>
+            <button id="runQuizBtn" class="btn btn-primary">✨ Get My Ranked Recommendations</button>
         </div>
+        <div id="quizResults" style="margin-top: 28px;"></div>
     </div>
 
-    <!-- PEER MATCHING TAB -->
+    <!-- PEER MATCHING TAB with internal messaging -->
     <div id="peer" class="tab-pane">
         <h2><i class="fas fa-user-friends"></i> Find a peer who completed a programme</h2>
         <label>Select programme: </label>
-        <select id="peerProgramSelect" style="margin-right: 12px;"></select>
-        <button id="loadPeersBtn" class="btn btn-primary">Show peers & message</button>
+        <select id="peerProgramSelect" style="margin-right: 12px; padding:10px;"></select>
+        <button id="loadPeersBtn" class="btn btn-primary">Show peers</button>
         <div id="peerResults" style="margin-top: 24px;"></div>
-        <div id="messageFeedback" style="margin-top: 16px; background: #dcfce7; padding: 12px; border-radius: 20px; display: none;"></div>
     </div>
 
-    <!-- QUIZ TAB - NOW RECOMMENDS MAX 3 -->
-    <div id="quiz" class="tab-pane">
-        <h2><i class="fas fa-clipboard-list"></i> Smart quiz → up to 3 best matches</h2>
-        <div class="quiz-step"><label>1. Which cause inspires you most?</label><br><select id="quizCause"><option>Environment</option><option>Education</option><option>Public Health</option><option>Community Building</option></select></div>
-        <div class="quiz-step"><label>2. How much time can you give weekly?</label><br><select id="quizTime"><option>One-day event</option><option>Weekly (2-4h)</option><option>Intensive</option><option>Semester-long</option></select></div>
-        <div class="quiz-step"><label>3. What skill do you want to apply or learn?</label><br><select id="quizSkill"><option>Teaching</option><option>Tech</option><option>Event coordination</option><option>Data analysis</option></select></div>
-        <div class="quiz-step"><label>4. Preferred location?</label><br><select id="quizLocation"><option>Remote</option><option>Downtown Hub</option><option>Eastside</option><option>Westside</option></select></div>
-        <button id="runQuizBtn" class="btn btn-primary">✨ Recommend (max 3 programmes)</button>
-        <div id="quizResults" style="margin-top: 24px;"></div>
+    <!-- INBOX TAB -->
+    <div id="inbox" class="tab-pane">
+        <h2><i class="fas fa-inbox"></i> Your Messages</h2>
+        <div id="inboxMessages" style="margin-top: 20px;">
+            <p style="color: #666;">Messages from peers will appear here.</p>
+        </div>
     </div>
-    <footer>🔍 Prototype for service-learning programme discovery | Compare | Calendar sync | Peer matching | Smart quiz</footer>
+</div>
 </div>
 
 <script>
-    // ---------- PROGRAMMES DATABASE ----------
+    // ---------- PROGRAMME DATA ----------
+    const categories = [
+        { id: "active", name: "Active Ageing", icon: "fas fa-user-friends", description: "Engage with senior citizens, promote healthy ageing, and support community wellness.", isExample: false },
+        { id: "children", name: "Children & Teens", icon: "fas fa-child", description: "Mentor and guide younger generations through educational and recreational activities.", isExample: true, exampleNote: "NTU launching soon – example programmes shown for preview" },
+        { id: "diverse", name: "Diverse Abilities", icon: "fas fa-universal-access", description: "Support individuals with diverse needs and foster inclusive communities.", isExample: true, exampleNote: "NTU launching soon – example programmes shown for preview" }
+    ];
+
     const programmes = [
-        { id: 1, name: "Coastal Cleanup & Restoration", cause: "Environment", commitment: "One-day event", location: "Eastside", skills: "Event coordination", deadline: "2026-05-10", desc: "Hands-on beach cleanup & awareness", sessions: [{ title: "Cleanup Day", start: "2026-05-15T09:00:00" }] },
-        { id: 2, name: "Youth STEM Tutoring", cause: "Education", commitment: "Weekly (2-4h)", location: "Remote", skills: "Teaching", deadline: "2026-04-30", desc: "Teach coding & science to under-resourced youth", sessions: [{ title: "Tutor training", start: "2026-04-22T17:00:00" }, { title: "Weekly session", start: "2026-04-29T17:00:00" }] },
-        { id: 3, name: "Community Health Ambassadors", cause: "Public Health", commitment: "Semester-long", location: "Downtown Hub", skills: "Data analysis", deadline: "2026-05-20", desc: "Collect & analyze health survey data", sessions: [{ title: "Kickoff", start: "2026-05-01T14:00:00" }] },
-        { id: 4, name: "Urban Garden Project", cause: "Environment", commitment: "Weekly (2-4h)", location: "Westside", skills: "Event coordination", deadline: "2026-05-12", desc: "Grow food for local food banks", sessions: [{ title: "Planting day", start: "2026-05-04T10:00:00" }] },
-        { id: 5, name: "Digital Literacy for Seniors", cause: "Community Building", commitment: "Weekly (2-4h)", location: "Remote", skills: "Teaching", deadline: "2026-04-25", desc: "Teach basic tech skills to seniors", sessions: [{ title: "Orientation", start: "2026-04-20T15:00:00" }] },
-        { id: 6, name: "Emergency Preparedness Workshop", cause: "Public Health", commitment: "Intensive", location: "Downtown Hub", skills: "Event coordination", deadline: "2026-06-01", desc: "Weekend training + emergency drills", sessions: [{ title: "Training", start: "2026-06-06T09:00:00" }, { title: "Drill", start: "2026-06-07T10:00:00" }] },
-        { id: 7, name: "Refugee Support Mentorship", cause: "Community Building", commitment: "Semester-long", location: "Eastside", skills: "Teaching", deadline: "2026-05-18", desc: "One-on-one mentoring for refugee families", sessions: [{ title: "Meet & Greet", start: "2026-05-08T18:00:00" }] },
-        { id: 8, name: "Green Schools Initiative", cause: "Environment", commitment: "One-day event", location: "Westside", skills: "Event coordination", deadline: "2026-05-25", desc: "Eco-audit & recycling drive at local schools", sessions: [{ title: "Audit day", start: "2026-05-28T09:30:00" }] }
+        { id: 1, name: "Silver Reach – Youth Outreach to Seniors", category: "active", commitment: "60-80 hours total", skills: "Communication & Outreach", partner: "Silver Generation Office (SGO) / Agency for Integrated Care (AIC)", deadline: "Rolling", placements: 400, description: "Serve as a Silver Generation Ambassador (SGA). Conduct home visits to check on seniors' wellbeing, connect them to care programmes, and guide them on government schemes. Requires security clearance (4-6 weeks). Open to Singapore Citizens/PRs only.", signupUrl: "#", partnerInfo: "The Silver Generation Office (SGO) under the Agency for Integrated Care (AIC) is Singapore's national outreach arm for active ageing. They coordinate over 500 SGAs nationwide, reaching more than 200,000 seniors annually. AIC was established in 2009 to champion person-centred care for seniors.", pastProjects: ["Island-wide home visits reaching 50,000+ seniors", "Community health screening events", "Digital literacy workshops for seniors"] },
+        { id: 2, name: "Silver Sparks – Youth Advocates for Active Ageing", category: "active", commitment: "60-80 hours total", skills: "Event Planning", partner: "Silver Generation Office (SGO) & SPH Media", deadline: "Rolling", placements: 200, description: "Serve as a Silver Guardian (SGD). Support Active Ageing Centres by planning engagement programmes, facilitating news-sharing sessions with seniors, and doing outreach to encourage participation.", signupUrl: "#", partnerInfo: "Active Ageing Centres (AACs) are community-based facilities that provide social and wellness activities for seniors. SPH Media contributes curated news content for senior engagement sessions.", pastProjects: ["News-sharing sessions reaching 10,000+ seniors", "Intergenerational bonding activities", "Healthy ageing workshops"] },
+        { id: 3, name: "Tech4Good: Digital Literacy for Seniors", category: "active", commitment: "50-70 hours", skills: "Communication & Outreach", partner: "IMDA & SG Digital Office", deadline: "Semester 2", placements: 150, description: "Teach seniors basic digital skills — using smartphones, accessing government services online, and staying connected with family. Training provided.", signupUrl: "#", partnerInfo: "The Infocomm Media Development Authority (IMDA) leads Singapore's digital inclusion efforts through the SG Digital Office, which has trained over 200,000 seniors in digital literacy.", pastProjects: ["Seniors Go Digital campaign", "Community tech helpdesks", "One-on-one smartphone coaching"] },
+        { id: 4, name: "Youth Mentorship Initiative", category: "children", commitment: "60 hours", skills: "Leadership & Mentoring", partner: "Mentoring Alliance (Example Partner)", deadline: "Coming Soon", placements: 80, description: "[EXAMPLE PROGRAMME – Not yet launched by NTU] Guide secondary school students through academic and personal development workshops. Help build confidence and study skills.", signupUrl: "#", partnerInfo: "This is an example community partner for preview purposes. NTU's Children & Teens programmes will launch in future semesters.", pastProjects: ["Example: After-school study support", "Career exploration workshops", "Leadership camps"] },
+        { id: 5, name: "Reading & STEM Buddies", category: "children", commitment: "40-60 hours", skills: "Event Planning", partner: "National Library Board (Example Partner)", deadline: "Coming Soon", placements: 120, description: "[EXAMPLE PROGRAMME – Not yet launched by NTU] Organise reading sessions and simple STEM activities for children aged 7–12. Inspire curiosity and a love for learning.", signupUrl: "#", partnerInfo: "This is an example community partner for preview purposes. Real partners will be confirmed when NTU launches this thrust.", pastProjects: ["Example: School holiday reading clubs", "Science centre partnerships", "Parent-child bonding activities"] },
+        { id: 6, name: "Inclusive Sports Programme", category: "diverse", commitment: "50 hours", skills: "Event Planning", partner: "SportSG (Example Partner)", deadline: "Coming Soon", placements: 60, description: "[EXAMPLE PROGRAMME – Not yet launched by NTU] Coach and assist persons with disabilities in adapted sports activities. Training in inclusive coaching provided.", signupUrl: "#", partnerInfo: "This is an example community partner for preview purposes. NTU's Diverse Abilities programmes will launch in future semesters.", pastProjects: ["Example: Unified sports events", "Parasports awareness campaigns", "Inclusive coaching clinics"] },
+        { id: 7, name: "Art for All: Creative Workshops", category: "diverse", commitment: "45 hours", skills: "Communication & Outreach", partner: "Very Special Arts Singapore (Example Partner)", deadline: "Coming Soon", placements: 40, description: "[EXAMPLE PROGRAMME – Not yet launched by NTU] Facilitate art workshops for adults with diverse abilities. Foster self-expression and social connection through creativity.", signupUrl: "#", partnerInfo: "This is an example community partner for preview purposes. Real partnerships will be announced when the thrust launches.", pastProjects: ["Example: Community art exhibitions", "Therapeutic art sessions", "Inclusive performance events"] }
     ];
 
-    // ---------- PEERS DATABASE ----------
+    // Peer database
     const peers = [
-        { id: 101, name: "Jamal Rivera", completedId: 1, programmeName: "Coastal Cleanup & Restoration", message: "Had a blast! Ask me about transport logistics.", avatar: "🌊" },
-        { id: 102, name: "Priya Kapoor", completedId: 2, programmeName: "Youth STEM Tutoring", message: "I tutored 10 sessions – happy to share lesson plans.", avatar: "🧑‍🏫" },
-        { id: 103, name: "Elena Zhou", completedId: 2, programmeName: "Youth STEM Tutoring", message: "Flexible remote tips!", avatar: "💻" },
-        { id: 104, name: "Marcus T.", completedId: 3, programmeName: "Community Health Ambassadors", message: "We presented findings to the city council!", avatar: "📊" },
-        { id: 105, name: "Sophia Lee", completedId: 5, programmeName: "Digital Literacy for Seniors", message: "Very rewarding, DM me for icebreaker ideas", avatar: "📱" }
+        { id: 101, name: "Jamal Rivera", completedId: 1, programmeName: "Silver Reach – Youth Outreach to Seniors", message: "Had a blast! Ask me about transport logistics.", avatar: "🌊", email: "jamal.rivera@e.ntu.edu.sg" },
+        { id: 102, name: "Priya Kapoor", completedId: 2, programmeName: "Silver Sparks – Youth Advocates for Active Ageing", message: "I loved planning activities at the Active Ageing Centre!", avatar: "🧑‍🏫", email: "priya.kapoor@e.ntu.edu.sg" },
+        { id: 103, name: "Elena Zhou", completedId: 1, programmeName: "Silver Reach – Youth Outreach to Seniors", message: "Flexible hours and very rewarding. Happy to share tips.", avatar: "💻", email: "elena.zhou@e.ntu.edu.sg" }
     ];
 
-    // ---------- GLOBAL STATE ----------
-    let compareList = [];      // max 3
-    let calendarObj = null;
-    let busyEvents = [];
+    // Message storage (in-memory for prototype)
+    let messages = [];
 
-    // ---------- RENDER BROWSE (FILTERS) ----------
-    function renderBrowse() {
-        const interest = document.getElementById('interestFilter').value;
-        const commitment = document.getElementById('commitFilter').value;
-        const location = document.getElementById('locationFilter').value;
-        const skill = document.getElementById('skillFilter').value;
-        
-        let filtered = programmes.filter(p => {
-            if (interest !== 'all' && p.cause !== interest) return false;
-            if (commitment !== 'all' && p.commitment !== commitment) return false;
-            if (location !== 'all' && p.location !== location) return false;
-            if (skill !== 'all' && p.skills !== skill) return false;
-            return true;
-        });
-        
-        const container = document.getElementById('programmeList');
-        container.innerHTML = filtered.map(p => `
-            <div class="card">
-                <h3>${p.name}</h3>
-                <div><span class="badge">${p.cause}</span> <span class="badge">${p.commitment}</span> <span class="badge">📍 ${p.location}</span></div>
-                <p style="font-size:0.85rem">${p.desc}</p>
-                <p><strong>🛠 Skills:</strong> ${p.skills} &nbsp;| 📅 Deadline: ${p.deadline}</p>
-                <div style="display: flex; gap: 8px; margin-top: 12px;">
-                    <button class="btn" onclick="addToCompare(${p.id})"><i class="fas fa-balance-scale"></i> Compare</button>
-                    <button class="btn btn-primary" onclick="simulateSignup('${p.name}')"><i class="fas fa-check-circle"></i> Sign up</button>
-                </div>
-            </div>
-        `).join('');
-        updateCompareUI();
+    // State
+    let compareList = [];
+    let currentCategory = null;
+    let selectedProgramme = null;
+    let currentUser = null;
+
+    // ---------- LOGIN SYSTEM ----------
+    function isValidNTUEmail(email) {
+        return email.endsWith('@e.ntu.edu.sg') || email.endsWith('@ntu.edu.sg');
     }
 
-    // ---------- COMPARE LOGIC ----------
-    function addToCompare(progId) {
+    document.getElementById('loginBtn').onclick = function() {
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        const errorDiv = document.getElementById('loginError');
+        
+        if (!email || !password) {
+            errorDiv.textContent = 'Please enter both email and password.';
+            return;
+        }
+        if (!isValidNTUEmail(email)) {
+            errorDiv.textContent = 'Please use a valid NTU email (@e.ntu.edu.sg or @ntu.edu.sg)';
+            return;
+        }
+        
+        // Accept any password for demo
+        currentUser = { email: email, name: email.split('@')[0] };
+        document.getElementById('currentUserEmail').textContent = email;
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        
+        // Load user's messages
+        loadUserMessages();
+    };
+    
+    document.getElementById('logoutBtn').onclick = function() {
+        currentUser = null;
+        document.getElementById('loginOverlay').style.display = 'flex';
+        document.getElementById('mainApp').style.display = 'none';
+        document.getElementById('loginEmail').value = '';
+        document.getElementById('loginPassword').value = '';
+        document.getElementById('loginError').textContent = '';
+    };
+
+    // ---------- MESSAGING SYSTEM (internal) ----------
+    function sendInternalMessage(toPeer, toEmail, messageText, fromName, fromEmail) {
+        const newMessage = {
+            id: Date.now(),
+            from: fromName,
+            fromEmail: fromEmail,
+            to: toPeer,
+            toEmail: toEmail,
+            message: messageText,
+            timestamp: new Date().toLocaleString(),
+            read: false
+        };
+        messages.push(newMessage);
+        // Also add to recipient's inbox (in real app would be server-side)
+        // For demo, we store globally and filter by recipient email
+        saveMessagesToStorage();
+        return newMessage;
+    }
+    
+    function saveMessagesToStorage() {
+        localStorage.setItem('csl_messages', JSON.stringify(messages));
+    }
+    
+    function loadUserMessages() {
+        const stored = localStorage.getItem('csl_messages');
+        if (stored) {
+            messages = JSON.parse(stored);
+        }
+        renderInbox();
+    }
+    
+    function renderInbox() {
+        const inboxDiv = document.getElementById('inboxMessages');
+        if (!currentUser) return;
+        const userMessages = messages.filter(m => m.toEmail === currentUser.email);
+        if (userMessages.length === 0) {
+            inboxDiv.innerHTML = '<p style="color: #666;">📭 No messages yet. Send a message to a peer to start a conversation!</p>';
+            return;
+        }
+        inboxDiv.innerHTML = userMessages.map(msg => `
+            <div class="inbox-message">
+                <strong><i class="fas fa-user-circle"></i> From: ${msg.from} (${msg.fromEmail})</strong>
+                <small style="float:right;">${msg.timestamp}</small>
+                <p style="margin-top: 8px;">💬 ${msg.message}</p>
+                <button class="btn" onclick="replyToMessage('${msg.from}', '${msg.fromEmail}')">Reply</button>
+            </div>
+        `).join('');
+    }
+    
+    window.replyToMessage = function(peerName, peerEmail) {
+        document.querySelector('[data-tab="peer"]').click();
+        setTimeout(() => {
+            alert(`You can find ${peerName} in the Peer Matching tab and send a reply message.`);
+        }, 500);
+    };
+
+    // Populate dropdowns for signup form
+    function populateProgrammeDropdowns() {
+        const options = programmes.map(p => `<option value="${p.id}">${p.name} (${p.category === 'active' ? 'Active Ageing' : p.category === 'children' ? 'Children & Teens' : 'Diverse Abilities'})</option>`).join('');
+        document.getElementById('choice1').innerHTML = '<option value="">Select programme</option>' + options;
+        document.getElementById('choice2').innerHTML = '<option value="">Select programme</option>' + options;
+        document.getElementById('choice3').innerHTML = '<option value="">Select programme</option>' + options;
+    }
+
+    // Render categories
+    function renderCategories() {
+        const container = document.getElementById('categoriesContainer');
+        container.innerHTML = categories.map(cat => `
+            <div class="category-card" onclick="selectCategory('${cat.id}')">
+                <div class="category-icon"><i class="${cat.icon}"></i></div>
+                <h3>${cat.name}</h3>
+                <p style="color:#5a6e5a;">${cat.description}</p>
+                ${cat.isExample ? `<div class="example-badge"><i class="fas fa-flask"></i> ${cat.exampleNote}</div>` : ''}
+                <span class="badge">View programmes →</span>
+            </div>
+        `).join('');
+    }
+
+    window.selectCategory = function(catId) {
+        currentCategory = catId;
+        const cat = categories.find(c => c.id === catId);
+        document.getElementById('categoryTitle').innerHTML = cat.name + (cat.isExample ? ' <span class="badge badge-warning"><i class="fas fa-flask"></i> Example Programmes (NTU launching soon)</span>' : '');
+        const filtered = programmes.filter(p => p.category === catId);
+        const programmesHtml = filtered.map(p => `
+            <div class="prog-card" onclick="showProgrammeDetail(${p.id})">
+                <h3>${p.name}</h3>
+                <div><span class="badge">⏱ ${p.commitment}</span> <span class="badge">🛠 ${p.skills}</span></div>
+                <p style="margin: 10px 0;">${p.description.substring(0, 100)}...</p>
+                <button class="btn" onclick="event.stopPropagation(); addToCompare(${p.id})">➕ Compare</button>
+            </div>
+        `).join('');
+        document.getElementById('programmesList').innerHTML = programmesHtml || '<p>No programmes yet in this thrust.</p>';
+        document.getElementById('categoriesView').style.display = 'none';
+        document.getElementById('programmesView').style.display = 'block';
+        document.getElementById('detailView').style.display = 'none';
+    };
+
+    window.showProgrammeDetail = function(progId) {
+        selectedProgramme = programmes.find(p => p.id === progId);
+        const isExample = selectedProgramme.category !== 'active';
+        const detailHtml = `
+            <div class="detail-view">
+                <h2>${selectedProgramme.name}</h2>
+                ${isExample ? '<div class="badge badge-warning" style="margin-bottom:12px;"><i class="fas fa-flask"></i> EXAMPLE PROGRAMME – For preview only. Official launch coming soon.</div>' : ''}
+                <p><strong>📋 Partner:</strong> ${selectedProgramme.partner}</p>
+                <p><strong>⏱ Commitment:</strong> ${selectedProgramme.commitment}</p>
+                <p><strong>🛠 Skills focus:</strong> ${selectedProgramme.skills}</p>
+                <p><strong>👥 Placements available:</strong> ${selectedProgramme.placements}</p>
+                <p><strong>📅 Deadline:</strong> ${selectedProgramme.deadline}</p>
+                <p><strong>📖 Description:</strong><br>${selectedProgramme.description}</p>
+                
+                <div class="partner-section">
+                    <h3><i class="fas fa-building"></i> About ${selectedProgramme.partner.split(' ')[0]}</h3>
+                    <p>${selectedProgramme.partnerInfo}</p>
+                    <h4><i class="fas fa-history"></i> Past / Example Projects</h4>
+                    <ul>
+                        ${selectedProgramme.pastProjects.map(proj => `<li>${proj}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <hr>
+                <p><i class="fas fa-info-circle"></i> This CSL course is 3 AUs (Pass/Fail) and counts towards graduation requirement for students admitted from AY2025/2026.</p>
+                <p><small>To sign up, please go to the <strong>Sign Up & Submit Choices</strong> tab.</small></p>
+                <button class="btn" onclick="addToCompare(${selectedProgramme.id})">➕ Add to Compare</button>
+                <button class="btn btn-primary" onclick="document.querySelector('[data-tab=\\'signup\\']').click();">📝 Go to Sign Up</button>
+            </div>
+        `;
+        document.getElementById('programmeDetail').innerHTML = detailHtml;
+        document.getElementById('categoriesView').style.display = 'none';
+        document.getElementById('programmesView').style.display = 'none';
+        document.getElementById('detailView').style.display = 'block';
+    };
+
+    // Back buttons
+    document.getElementById('backToCategoriesBtn').onclick = () => {
+        document.getElementById('categoriesView').style.display = 'block';
+        document.getElementById('programmesView').style.display = 'none';
+        document.getElementById('detailView').style.display = 'none';
+        currentCategory = null;
+    };
+    document.getElementById('backToProgrammesBtn').onclick = () => {
+        if (currentCategory) selectCategory(currentCategory);
+    };
+
+    // Compare logic
+    window.addToCompare = function(progId) {
         const prog = programmes.find(p => p.id === progId);
         if (!prog) return;
         if (compareList.find(c => c.id === progId)) { alert('Already in compare list'); return; }
         if (compareList.length >= 3) { alert('Maximum 3 programmes can be compared'); return; }
         compareList.push(prog);
         updateCompareUI();
-        document.querySelector('[data-tab="compare"]').click();
-    }
+        alert(`Added "${prog.name}" to compare.`);
+    };
 
-    function removeFromCompare(id) {
+    window.removeFromCompare = function(id) {
         compareList = compareList.filter(p => p.id !== id);
         updateCompareUI();
-        renderBrowse();
-    }
+    };
 
     function updateCompareUI() {
         document.getElementById('compareCount').innerText = compareList.length;
-        const miniDiv = document.getElementById('compareMiniList');
-        miniDiv.innerHTML = compareList.map(p => `<span class="badge" style="background:#d0e6d5">${p.name} <button style="background:none; border:none; cursor:pointer;" onclick="removeFromCompare(${p.id})">❌</button></span>`).join('');
-        
         const compareDiv = document.getElementById('compareContainer');
         if (compareList.length === 0) {
-            compareDiv.innerHTML = '<p>No programmes selected. Go to Browse and click "Compare" on cards.</p>';
+            compareDiv.innerHTML = '<p>No programmes selected. Browse and click "Compare" on any programme card.</p>';
             return;
         }
         compareDiv.innerHTML = compareList.map(p => `
             <div class="compare-card">
                 <h3>${p.name}</h3>
-                <p><strong>Cause:</strong> ${p.cause}</p>
+                <p><strong>Category:</strong> ${categories.find(c=>c.id===p.category)?.name}</p>
                 <p><strong>Commitment:</strong> ${p.commitment}</p>
-                <p><strong>Location:</strong> ${p.location}</p>
-                <p><strong>Skills needed:</strong> ${p.skills}</p>
-                <p><strong>Deadline:</strong> ${p.deadline}</p>
-                <p>${p.desc}</p>
-                <button class="btn btn-primary" onclick="simulateSignup('${p.name}')">Sign up</button>
+                <p><strong>Skills:</strong> ${p.skills}</p>
+                <p><strong>Partner:</strong> ${p.partner}</p>
                 <button class="btn" onclick="removeFromCompare(${p.id})">Remove</button>
+                <button class="btn" onclick="showProgrammeDetail(${p.id})">View Details</button>
             </div>
         `).join('');
     }
 
-    function simulateSignup(progName) {
-        alert(`✅ You've expressed interest in "${progName}". In the real system, you'd complete registration form.`);
-    }
-
-    // ---------- CALENDAR (FullCalendar) ----------
-    function initCalendar() {
-        const calendarEl = document.getElementById('calendarContainer');
-        const progEvents = [];
-        programmes.forEach(prog => {
-            if (prog.sessions) {
-                prog.sessions.forEach(s => {
-                    progEvents.push({ title: `${prog.name}: ${s.title}`, start: s.start, color: '#2d6a4f' });
-                });
-            }
+    // RANKED QUIZ (returns 1st, 2nd, 3rd based on suitability)
+    function runRankedQuiz() {
+        const cause = document.getElementById('quizCause').value;
+        const role = document.getElementById('quizRole').value;
+        const skill = document.getElementById('quizSkill').value;
+        const time = document.getElementById('quizTime').value;
+        
+        let scored = programmes.map(p => {
+            let score = 0;
+            if (p.category === cause) score += 4;
+            if (role === 'direct' && (p.skills === 'Communication & Outreach')) score += 2;
+            if (role === 'planning' && (p.skills === 'Event Planning')) score += 2;
+            if (role === 'mixed') score += 1;
+            if ((skill === 'comm' && p.skills === 'Communication & Outreach') ||
+                (skill === 'events' && p.skills === 'Event Planning') ||
+                (skill === 'leadership' && p.skills === 'Leadership & Mentoring')) score += 2;
+            const hours = parseInt(p.commitment) || 60;
+            if (time === '5-10' && hours <= 70) score += 1;
+            if (time === '10-15' && hours >= 50 && hours <= 80) score += 1;
+            if (time === '15+' && hours >= 60) score += 1;
+            return { ...p, score };
         });
-        calendarObj = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
-            events: [...progEvents, ...busyEvents],
-            eventClick: (info) => alert(`Event: ${info.event.title}\nStarts: ${info.event.startStr}`)
-        });
-        calendarObj.render();
-    }
-
-    function refreshCalendarWithBusy() {
-        if (calendarObj) {
-            const progEvents = [];
-            programmes.forEach(prog => {
-                if (prog.sessions) prog.sessions.forEach(s => progEvents.push({ title: `${prog.name}: ${s.title}`, start: s.start, color: '#2d6a4f' }));
-            });
-            calendarObj.removeAllEvents();
-            calendarObj.addEventSource(progEvents);
-            calendarObj.addEventSource(busyEvents);
+        
+        scored.sort((a,b) => b.score - a.score);
+        let ranked = scored.slice(0,3);
+        
+        if (ranked.length === 0 || ranked[0].score === 0) {
+            document.getElementById('quizResults').innerHTML = '<div style="padding:20px; background:#fefaf0; border-radius:20px;">😕 Try different preferences.</div>';
+            return;
         }
+        
+        const rankEmojis = ['🥇 1st Choice - Best Match', '🥈 2nd Choice - Great Fit', '🥉 3rd Choice - Good Alternative'];
+        const rankColors = ['#ffd700', '#c0c0c0', '#cd7f32'];
+        
+        document.getElementById('quizResults').innerHTML = `
+            <div style="background:#eef3ec; border-radius:24px; padding:20px; margin-bottom:20px;">
+                <h3><i class="fas fa-chart-line"></i> Your Ranked Recommendations</h3>
+                <p>Based on your responses, here are the top 3 programmes most suitable for you:</p>
+            </div>
+            ${ranked.map((p, idx) => `
+                <div class="prog-card" style="margin-bottom:16px; border-left: 8px solid ${rankColors[idx]};">
+                    <h3>${rankEmojis[idx]}</h3>
+                    <h4>${p.name}</h4>
+                    <p>${p.description.substring(0,150)}...</p>
+                    <div><span class="badge">⏱ ${p.commitment}</span> <span class="badge">🛠 ${p.skills}</span></div>
+                    <div style="margin-top:12px;">
+                        <button class="btn" onclick="addToCompare(${p.id})">Compare</button>
+                        <button class="btn btn-primary" onclick="showProgrammeDetail(${p.id})">View Programme Details →</button>
+                    </div>
+                </div>
+            `).join('')}
+            <div style="text-align:center; margin-top:20px;">
+                <button class="btn btn-primary" onclick="document.querySelector('[data-tab=\\'signup\\']').click();">📝 Go to Sign Up Form to Submit Your Choices</button>
+            </div>
+        `;
     }
 
-    // ---------- PEER MATCHING ----------
+    // Sign Up Form Submission
+    document.getElementById('signupForm').onsubmit = function(e) {
+        e.preventDefault();
+        const name = document.getElementById('studentName').value;
+        const email = document.getElementById('studentEmail').value;
+        const matric = document.getElementById('matricNo').value;
+        const school = document.getElementById('school').value;
+        const choice1Text = document.getElementById('choice1').options[document.getElementById('choice1').selectedIndex]?.text;
+        const choice2Text = document.getElementById('choice2').options[document.getElementById('choice2').selectedIndex]?.text;
+        const choice3Text = document.getElementById('choice3').options[document.getElementById('choice3').selectedIndex]?.text;
+        const notes = document.getElementById('notes').value;
+        
+        const successDiv = document.getElementById('signupSuccess');
+        successDiv.style.display = 'block';
+        successDiv.innerHTML = `
+            <i class="fas fa-check-circle"></i> <strong>Registration submitted successfully!</strong><br>
+            Thank you ${name} (${email})!<br>
+            Your top choices:<br>
+            🥇 ${choice1Text}<br>
+            🥈 ${choice2Text}<br>
+            🥉 ${choice3Text}<br>
+            ${notes ? `<br>📝 Additional notes: ${notes}` : ''}<br><br>
+            The CSL office will contact you within 3-5 working days to confirm your placement.
+        `;
+        document.getElementById('signupForm').reset();
+        setTimeout(() => {
+            successDiv.style.display = 'none';
+        }, 8000);
+    };
+
+    // Peer Matching with internal messaging
     function populatePeerSelect() {
         const select = document.getElementById('peerProgramSelect');
         select.innerHTML = '<option value="">-- Choose a programme --</option>' + programmes.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
@@ -267,85 +840,46 @@
         resultsDiv.innerHTML = matchedPeers.map(peer => `
             <div class="peer-message-item">
                 <strong>${peer.avatar} ${peer.name}</strong> <span style="font-size:0.8rem">(completed ${peer.programmeName})</span>
-                <p>💬 "${peer.message}"</p>
-                <button class="btn" onclick="messagePeer('${peer.name}')">📨 Send message request</button>
+                <p style="margin-top:8px;">💬 "${peer.message}"</p>
+                <div class="message-box">
+                    <label><i class="fas fa-envelope"></i> Send a message to ${peer.name}:</label>
+                    <textarea id="msgTo_${peer.id}" rows="2" style="width:100%; margin-top:8px; padding:10px; border-radius:12px; border:1px solid #cbd5e1;" placeholder="Type your question or message here..."></textarea>
+                    <button class="btn btn-primary" style="margin-top:8px;" onclick="sendInternalMessageToPeer('${peer.name}', '${peer.email}', ${peer.id})"><i class="fas fa-paper-plane"></i> Send Message</button>
+                </div>
             </div>
         `).join('');
     }
 
-    function messagePeer(peerName) {
-        const feedback = document.getElementById('messageFeedback');
-        feedback.style.display = 'block';
-        feedback.innerHTML = `✅ Message sent to ${peerName}! (Demo: chat would open here)`;
-        setTimeout(() => { feedback.style.display = 'none'; }, 3000);
-    }
-
-    // ---------- SMART QUIZ (MAX 3 RECOMMENDATIONS) ----------
-    function runQuiz() {
-        const cause = document.getElementById('quizCause').value;
-        const timePref = document.getElementById('quizTime').value;
-        const skillPref = document.getElementById('quizSkill').value;
-        const locationPref = document.getElementById('quizLocation').value;
-        
-        // Score each programme
-        let scored = programmes.map(p => {
-            let score = 0;
-            if (p.cause === cause) score += 3;
-            if (p.commitment === timePref) score += 2;
-            if (p.skills === skillPref) score += 2;
-            if (p.location === locationPref) score += 2;
-            return { ...p, score };
-        });
-        
-        // Sort by score (highest first)
-        scored.sort((a, b) => b.score - a.score);
-        
-        // TAKE ONLY TOP 3 (max 3 recommendations)
-        let top = scored.slice(0, 3);
-        
-        // Filter out zero-score if there are any higher? Keep but show message if all zero
-        if (top.length === 0 || top[0].score === 0) {
-            document.getElementById('quizResults').innerHTML = '<div class="card" style="background:#fff3e0;">😕 No strong matches found. Try changing your preferences!</div>';
+    window.sendInternalMessageToPeer = function(peerName, peerEmail, peerId) {
+        const messageBox = document.getElementById(`msgTo_${peerId}`);
+        const message = messageBox.value.trim();
+        if (!message) {
+            alert('Please type a message before sending.');
             return;
         }
         
-        const resultsDiv = document.getElementById('quizResults');
-        resultsDiv.innerHTML = top.map(p => `
-            <div class="recommendation-card">
-                <h3><i class="fas fa-star" style="color:#f5b042;"></i> ${p.name}</h3>
-                <p>${p.desc}</p>
-                <div><span class="badge">${p.cause}</span> <span class="badge">${p.commitment}</span> <span class="badge">📍 ${p.location}</span> <span class="badge">🛠 ${p.skills}</span></div>
-                <p><strong>📅 Deadline:</strong> ${p.deadline}</p>
-                <button class="btn btn-primary" style="margin-top: 8px;" onclick="simulateSignup('${p.name}')">View & sign up</button>
-            </div>
-        `).join('');
-    }
+        const studentName = document.getElementById('studentName')?.value || currentUser?.name || 'NTU Student';
+        const studentEmail = document.getElementById('studentEmail')?.value || currentUser?.email;
+        
+        if (!studentEmail) {
+            alert('Please complete the sign-up form first or ensure you are logged in.');
+            return;
+        }
+        
+        sendInternalMessage(peerName, peerEmail, message, studentName, studentEmail);
+        
+        const feedback = document.createElement('div');
+        feedback.className = 'success-message';
+        feedback.style.marginTop = '8px';
+        feedback.innerHTML = `✅ Message sent to ${peerName}! They will see it in their inbox.`;
+        messageBox.parentNode.appendChild(feedback);
+        messageBox.value = '';
+        setTimeout(() => feedback.remove(), 3000);
+        
+        renderInbox();
+    };
 
-    // ---------- EVENT LISTENERS ----------
-    document.getElementById('interestFilter').addEventListener('change', renderBrowse);
-    document.getElementById('commitFilter').addEventListener('change', renderBrowse);
-    document.getElementById('locationFilter').addEventListener('change', renderBrowse);
-    document.getElementById('skillFilter').addEventListener('change', renderBrowse);
-    document.getElementById('resetFilters').addEventListener('click', () => {
-        document.getElementById('interestFilter').value = 'all';
-        document.getElementById('commitFilter').value = 'all';
-        document.getElementById('locationFilter').value = 'all';
-        document.getElementById('skillFilter').value = 'all';
-        renderBrowse();
-    });
-    document.getElementById('viewCompareBtn').addEventListener('click', () => { document.querySelector('[data-tab="compare"]').click(); });
-    document.getElementById('runQuizBtn').addEventListener('click', runQuiz);
-    document.getElementById('loadPeersBtn').addEventListener('click', loadPeers);
-    document.getElementById('addBusySlot').addEventListener('click', () => {
-        let start = document.getElementById('blockStart').value;
-        let end = document.getElementById('blockEnd').value;
-        if (!start || !end) { alert('Please select both start and end date/time'); return; }
-        busyEvents.push({ title: '🔴 Busy (personal)', start: start, end: end, color: '#b91c1c', textColor: 'white' });
-        refreshCalendarWithBusy();
-        alert('Busy slot added. Check calendar for conflicts with programme sessions.');
-    });
-
-    // ---------- TAB SWITCHING ----------
+    // Tab switching
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const tabId = btn.getAttribute('data-tab');
@@ -353,14 +887,20 @@
             document.getElementById(tabId).classList.add('active');
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            if (tabId === 'calendar' && !calendarObj) initCalendar();
             if (tabId === 'compare') updateCompareUI();
+            if (tabId === 'signup') populateProgrammeDropdowns();
+            if (tabId === 'inbox') renderInbox();
         });
     });
+    
+    document.getElementById('viewCompareBtn').onclick = () => document.querySelector('[data-tab="compare"]').click();
+    document.getElementById('runQuizBtn').onclick = runRankedQuiz;
+    document.getElementById('loadPeersBtn').onclick = loadPeers;
 
-    // ---------- INITIAL LOAD ----------
+    // Initial render
+    renderCategories();
     populatePeerSelect();
-    renderBrowse();
+    populateProgrammeDropdowns();
 </script>
 </body>
 </html>
