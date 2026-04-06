@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service-Learning Hub | Centralized Programmes</title>
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/main.min.css' rel='stylesheet' />
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/main.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/dayjs@1.11.13/dayjs.min.js'></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; font-family: system-ui, 'Segoe UI', sans-serif; }
+        body { background: #f0f7f0; margin: 0; padding: 20px; }
+        .app-container { max-width: 1400px; margin: 0 auto; }
+        h1 { color: #1b4d3e; }
+        .tabs { display: flex; gap: 8px; border-bottom: 2px solid #cbd5e0; flex-wrap: wrap; margin-bottom: 24px; }
+        .tab-btn { background: none; border: none; padding: 10px 20px; font-size: 0.9rem; font-weight: 600; cursor: pointer; color: #2d6a4f; border-radius: 30px 30px 0 0; transition: 0.2s; }
+        .tab-btn.active { background: white; color: #1b4d3e; border-bottom: 3px solid #2d6a4f; }
+        .tab-pane { display: none; background: white; border-radius: 24px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .tab-pane.active { display: block; }
+        .filters-bar { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; background: #f9fef7; padding: 16px; border-radius: 40px; align-items: flex-end; }
+        .filter-group { display: flex; flex-direction: column; gap: 4px; min-width: 130px; }
+        .filter-group label { font-weight: 700; font-size: 0.7rem; color: #1e3a2f; }
+        select, input { padding: 6px 12px; border-radius: 40px; border: 1px solid #cbd5e1; background: white; }
+        .programme-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 20px; padding: 16px; border: 1px solid #e2eddf; transition: 0.2s; }
+        .card:hover { box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
+        .card h3 { margin: 0 0 6px; color: #1b4d3e; font-size: 1.1rem; }
+        .badge { background: #e6f4ea; padding: 3px 10px; border-radius: 50px; font-size: 0.7rem; display: inline-block; margin: 3px 3px 0 0; }
+        .btn { background: #eef2e6; border: none; padding: 6px 12px; border-radius: 40px; cursor: pointer; font-size: 0.8rem; transition: 0.2s; }
+        .btn:hover { background: #d4e2cc; }
+        .btn-primary { background: #2d6a4f; color: white; }
+        .btn-primary:hover { background: #1b4d3e; }
+        .compare-panel { margin-top: 24px; background: #f4faf2; border-radius: 24px; padding: 16px; }
+        .compare-card { background: white; border-radius: 16px; padding: 14px; margin: 10px 0; border-left: 4px solid #2d6a4f; }
+        .peer-message-item { background: #f9fbf7; border-radius: 16px; padding: 12px; margin-bottom: 10px; }
+        .quiz-step { background: #fefaf0; border-radius: 20px; padding: 14px; margin-bottom: 14px; }
+        .recommendation-card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; border-left: 5px solid #2d6a4f; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+        @media (max-width: 700px) { .filters-bar { flex-direction: column; align-items: stretch; } }
+        footer { text-align: center; margin-top: 30px; color: #5a6e5a; font-size: 0.75rem; }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <h1><i class="fas fa-hands-helping"></i> Service-Learning Programmes Hub</h1>
+    <p>Clear, centralized info · Compare · Sign up · Peer advice</p>
+    
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="browse">📋 Browse & Filter</button>
+        <button class="tab-btn" data-tab="compare">⚖️ Compare (max 3)</button>
+        <button class="tab-btn" data-tab="calendar">📅 Calendar + Availability</button>
+        <button class="tab-btn" data-tab="peer">💬 Peer Matching</button>
+        <button class="tab-btn" data-tab="quiz">✨ Smart Quiz → Top 3</button>
+    </div>
+
+    <!-- BROWSE TAB -->
+    <div id="browse" class="tab-pane active">
+        <div class="filters-bar">
+            <div class="filter-group"><label>🌱 Cause / Interest</label><select id="interestFilter"><option value="all">All</option><option>Environment</option><option>Education</option><option>Public Health</option><option>Community Building</option></select></div>
+            <div class="filter-group"><label>⏱ Time Commitment</label><select id="commitFilter"><option value="all">All</option><option>One-day event</option><option>Weekly (2-4h)</option><option>Intensive</option><option>Semester-long</option></select></div>
+            <div class="filter-group"><label>📍 Location</label><select id="locationFilter"><option value="all">All</option><option>Remote</option><option>Downtown Hub</option><option>Eastside</option><option>Westside</option></select></div>
+            <div class="filter-group"><label>🛠 Skills needed</label><select id="skillFilter"><option value="all">All</option><option>Teaching</option><option>Tech</option><option>Event coordination</option><option>Data analysis</option></select></div>
+            <button id="resetFilters" class="btn btn-primary">Reset filters</button>
+        </div>
+        <div id="programmeList" class="programme-grid"></div>
+        <div class="compare-panel">
+            <strong><i class="fas fa-layer-group"></i> Compare shortlist</strong> <span id="compareCount">0</span> selected
+            <button id="viewCompareBtn" class="btn btn-primary">Go to Compare tab</button>
+            <div id="compareMiniList" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px;"></div>
+        </div>
+    </div>
+
+    <!-- COMPARE TAB -->
+    <div id="compare" class="tab-pane">
+        <h2><i class="fas fa-balance-scale"></i> Side-by-side comparison</h2>
+        <div id="compareContainer" style="margin-top: 16px;">Select programmes from Browse tab (max 3)</div>
+        <p style="margin-top: 20px;"><small><i class="fas fa-info-circle"></i> Compare deadlines, skills, location, and commitment.</small></p>
+    </div>
+
+    <!-- CALENDAR TAB -->
+    <div id="calendar" class="tab-pane">
+        <h2><i class="fas fa-calendar-alt"></i> Programme timeline & availability</h2>
+        <p>Key service-learning sessions are shown in green. Click any event for details.</p>
+        <div id="calendarContainer" style="margin-top: 16px;"></div>
+        <div style="margin-top: 24px; background: #eef3ec; border-radius: 20px; padding: 16px;">
+            <label><i class="fas fa-plus-circle"></i> Simulate personal busy time: </label>
+            <input type="datetime-local" id="blockStart" /> to <input type="datetime-local" id="blockEnd" />
+            <button id="addBusySlot" class="btn">➕ Mark busy</button>
+            <p><small>🔴 Red = your busy slots. Helps check programme availability.</small></p>
+        </div>
+    </div>
+
+    <!-- PEER MATCHING TAB -->
+    <div id="peer" class="tab-pane">
+        <h2><i class="fas fa-user-friends"></i> Find a peer who completed a programme</h2>
+        <label>Select programme: </label>
+        <select id="peerProgramSelect" style="margin-right: 12px;"></select>
+        <button id="loadPeersBtn" class="btn btn-primary">Show peers & message</button>
+        <div id="peerResults" style="margin-top: 24px;"></div>
+        <div id="messageFeedback" style="margin-top: 16px; background: #dcfce7; padding: 12px; border-radius: 20px; display: none;"></div>
+    </div>
+
+    <!-- QUIZ TAB - NOW RECOMMENDS MAX 3 -->
+    <div id="quiz" class="tab-pane">
+        <h2><i class="fas fa-clipboard-list"></i> Smart quiz → up to 3 best matches</h2>
+        <div class="quiz-step"><label>1. Which cause inspires you most?</label><br><select id="quizCause"><option>Environment</option><option>Education</option><option>Public Health</option><option>Community Building</option></select></div>
+        <div class="quiz-step"><label>2. How much time can you give weekly?</label><br><select id="quizTime"><option>One-day event</option><option>Weekly (2-4h)</option><option>Intensive</option><option>Semester-long</option></select></div>
+        <div class="quiz-step"><label>3. What skill do you want to apply or learn?</label><br><select id="quizSkill"><option>Teaching</option><option>Tech</option><option>Event coordination</option><option>Data analysis</option></select></div>
+        <div class="quiz-step"><label>4. Preferred location?</label><br><select id="quizLocation"><option>Remote</option><option>Downtown Hub</option><option>Eastside</option><option>Westside</option></select></div>
+        <button id="runQuizBtn" class="btn btn-primary">✨ Recommend (max 3 programmes)</button>
+        <div id="quizResults" style="margin-top: 24px;"></div>
+    </div>
+    <footer>🔍 Prototype for service-learning programme discovery | Compare | Calendar sync | Peer matching | Smart quiz</footer>
+</div>
+
+<script>
+    // ---------- PROGRAMMES DATABASE ----------
+    const programmes = [
+        { id: 1, name: "Coastal Cleanup & Restoration", cause: "Environment", commitment: "One-day event", location: "Eastside", skills: "Event coordination", deadline: "2026-05-10", desc: "Hands-on beach cleanup & awareness", sessions: [{ title: "Cleanup Day", start: "2026-05-15T09:00:00" }] },
+        { id: 2, name: "Youth STEM Tutoring", cause: "Education", commitment: "Weekly (2-4h)", location: "Remote", skills: "Teaching", deadline: "2026-04-30", desc: "Teach coding & science to under-resourced youth", sessions: [{ title: "Tutor training", start: "2026-04-22T17:00:00" }, { title: "Weekly session", start: "2026-04-29T17:00:00" }] },
+        { id: 3, name: "Community Health Ambassadors", cause: "Public Health", commitment: "Semester-long", location: "Downtown Hub", skills: "Data analysis", deadline: "2026-05-20", desc: "Collect & analyze health survey data", sessions: [{ title: "Kickoff", start: "2026-05-01T14:00:00" }] },
+        { id: 4, name: "Urban Garden Project", cause: "Environment", commitment: "Weekly (2-4h)", location: "Westside", skills: "Event coordination", deadline: "2026-05-12", desc: "Grow food for local food banks", sessions: [{ title: "Planting day", start: "2026-05-04T10:00:00" }] },
+        { id: 5, name: "Digital Literacy for Seniors", cause: "Community Building", commitment: "Weekly (2-4h)", location: "Remote", skills: "Teaching", deadline: "2026-04-25", desc: "Teach basic tech skills to seniors", sessions: [{ title: "Orientation", start: "2026-04-20T15:00:00" }] },
+        { id: 6, name: "Emergency Preparedness Workshop", cause: "Public Health", commitment: "Intensive", location: "Downtown Hub", skills: "Event coordination", deadline: "2026-06-01", desc: "Weekend training + emergency drills", sessions: [{ title: "Training", start: "2026-06-06T09:00:00" }, { title: "Drill", start: "2026-06-07T10:00:00" }] },
+        { id: 7, name: "Refugee Support Mentorship", cause: "Community Building", commitment: "Semester-long", location: "Eastside", skills: "Teaching", deadline: "2026-05-18", desc: "One-on-one mentoring for refugee families", sessions: [{ title: "Meet & Greet", start: "2026-05-08T18:00:00" }] },
+        { id: 8, name: "Green Schools Initiative", cause: "Environment", commitment: "One-day event", location: "Westside", skills: "Event coordination", deadline: "2026-05-25", desc: "Eco-audit & recycling drive at local schools", sessions: [{ title: "Audit day", start: "2026-05-28T09:30:00" }] }
+    ];
+
+    // ---------- PEERS DATABASE ----------
+    const peers = [
+        { id: 101, name: "Jamal Rivera", completedId: 1, programmeName: "Coastal Cleanup & Restoration", message: "Had a blast! Ask me about transport logistics.", avatar: "🌊" },
+        { id: 102, name: "Priya Kapoor", completedId: 2, programmeName: "Youth STEM Tutoring", message: "I tutored 10 sessions – happy to share lesson plans.", avatar: "🧑‍🏫" },
+        { id: 103, name: "Elena Zhou", completedId: 2, programmeName: "Youth STEM Tutoring", message: "Flexible remote tips!", avatar: "💻" },
+        { id: 104, name: "Marcus T.", completedId: 3, programmeName: "Community Health Ambassadors", message: "We presented findings to the city council!", avatar: "📊" },
+        { id: 105, name: "Sophia Lee", completedId: 5, programmeName: "Digital Literacy for Seniors", message: "Very rewarding, DM me for icebreaker ideas", avatar: "📱" }
+    ];
+
+    // ---------- GLOBAL STATE ----------
+    let compareList = [];      // max 3
+    let calendarObj = null;
+    let busyEvents = [];
+
+    // ---------- RENDER BROWSE (FILTERS) ----------
+    function renderBrowse() {
+        const interest = document.getElementById('interestFilter').value;
+        const commitment = document.getElementById('commitFilter').value;
+        const location = document.getElementById('locationFilter').value;
+        const skill = document.getElementById('skillFilter').value;
+        
+        let filtered = programmes.filter(p => {
+            if (interest !== 'all' && p.cause !== interest) return false;
+            if (commitment !== 'all' && p.commitment !== commitment) return false;
+            if (location !== 'all' && p.location !== location) return false;
+            if (skill !== 'all' && p.skills !== skill) return false;
+            return true;
+        });
+        
+        const container = document.getElementById('programmeList');
+        container.innerHTML = filtered.map(p => `
+            <div class="card">
+                <h3>${p.name}</h3>
+                <div><span class="badge">${p.cause}</span> <span class="badge">${p.commitment}</span> <span class="badge">📍 ${p.location}</span></div>
+                <p style="font-size:0.85rem">${p.desc}</p>
+                <p><strong>🛠 Skills:</strong> ${p.skills} &nbsp;| 📅 Deadline: ${p.deadline}</p>
+                <div style="display: flex; gap: 8px; margin-top: 12px;">
+                    <button class="btn" onclick="addToCompare(${p.id})"><i class="fas fa-balance-scale"></i> Compare</button>
+                    <button class="btn btn-primary" onclick="simulateSignup('${p.name}')"><i class="fas fa-check-circle"></i> Sign up</button>
+                </div>
+            </div>
+        `).join('');
+        updateCompareUI();
+    }
+
+    // ---------- COMPARE LOGIC ----------
+    function addToCompare(progId) {
+        const prog = programmes.find(p => p.id === progId);
+        if (!prog) return;
+        if (compareList.find(c => c.id === progId)) { alert('Already in compare list'); return; }
+        if (compareList.length >= 3) { alert('Maximum 3 programmes can be compared'); return; }
+        compareList.push(prog);
+        updateCompareUI();
+        document.querySelector('[data-tab="compare"]').click();
+    }
+
+    function removeFromCompare(id) {
+        compareList = compareList.filter(p => p.id !== id);
+        updateCompareUI();
+        renderBrowse();
+    }
+
+    function updateCompareUI() {
+        document.getElementById('compareCount').innerText = compareList.length;
+        const miniDiv = document.getElementById('compareMiniList');
+        miniDiv.innerHTML = compareList.map(p => `<span class="badge" style="background:#d0e6d5">${p.name} <button style="background:none; border:none; cursor:pointer;" onclick="removeFromCompare(${p.id})">❌</button></span>`).join('');
+        
+        const compareDiv = document.getElementById('compareContainer');
+        if (compareList.length === 0) {
+            compareDiv.innerHTML = '<p>No programmes selected. Go to Browse and click "Compare" on cards.</p>';
+            return;
+        }
+        compareDiv.innerHTML = compareList.map(p => `
+            <div class="compare-card">
+                <h3>${p.name}</h3>
+                <p><strong>Cause:</strong> ${p.cause}</p>
+                <p><strong>Commitment:</strong> ${p.commitment}</p>
+                <p><strong>Location:</strong> ${p.location}</p>
+                <p><strong>Skills needed:</strong> ${p.skills}</p>
+                <p><strong>Deadline:</strong> ${p.deadline}</p>
+                <p>${p.desc}</p>
+                <button class="btn btn-primary" onclick="simulateSignup('${p.name}')">Sign up</button>
+                <button class="btn" onclick="removeFromCompare(${p.id})">Remove</button>
+            </div>
+        `).join('');
+    }
+
+    function simulateSignup(progName) {
+        alert(`✅ You've expressed interest in "${progName}". In the real system, you'd complete registration form.`);
+    }
+
+    // ---------- CALENDAR (FullCalendar) ----------
+    function initCalendar() {
+        const calendarEl = document.getElementById('calendarContainer');
+        const progEvents = [];
+        programmes.forEach(prog => {
+            if (prog.sessions) {
+                prog.sessions.forEach(s => {
+                    progEvents.push({ title: `${prog.name}: ${s.title}`, start: s.start, color: '#2d6a4f' });
+                });
+            }
+        });
+        calendarObj = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
+            events: [...progEvents, ...busyEvents],
+            eventClick: (info) => alert(`Event: ${info.event.title}\nStarts: ${info.event.startStr}`)
+        });
+        calendarObj.render();
+    }
+
+    function refreshCalendarWithBusy() {
+        if (calendarObj) {
+            const progEvents = [];
+            programmes.forEach(prog => {
+                if (prog.sessions) prog.sessions.forEach(s => progEvents.push({ title: `${prog.name}: ${s.title}`, start: s.start, color: '#2d6a4f' }));
+            });
+            calendarObj.removeAllEvents();
+            calendarObj.addEventSource(progEvents);
+            calendarObj.addEventSource(busyEvents);
+        }
+    }
+
+    // ---------- PEER MATCHING ----------
+    function populatePeerSelect() {
+        const select = document.getElementById('peerProgramSelect');
+        select.innerHTML = '<option value="">-- Choose a programme --</option>' + programmes.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+    }
+
+    function loadPeers() {
+        const progId = parseInt(document.getElementById('peerProgramSelect').value);
+        if (!progId) { alert('Please select a programme'); return; }
+        const matchedPeers = peers.filter(p => p.completedId === progId);
+        const resultsDiv = document.getElementById('peerResults');
+        if (matchedPeers.length === 0) {
+            resultsDiv.innerHTML = '<p>✨ No peers yet for this programme. Be the first to mentor!</p>';
+            return;
+        }
+        resultsDiv.innerHTML = matchedPeers.map(peer => `
+            <div class="peer-message-item">
+                <strong>${peer.avatar} ${peer.name}</strong> <span style="font-size:0.8rem">(completed ${peer.programmeName})</span>
+                <p>💬 "${peer.message}"</p>
+                <button class="btn" onclick="messagePeer('${peer.name}')">📨 Send message request</button>
+            </div>
+        `).join('');
+    }
+
+    function messagePeer(peerName) {
+        const feedback = document.getElementById('messageFeedback');
+        feedback.style.display = 'block';
+        feedback.innerHTML = `✅ Message sent to ${peerName}! (Demo: chat would open here)`;
+        setTimeout(() => { feedback.style.display = 'none'; }, 3000);
+    }
+
+    // ---------- SMART QUIZ (MAX 3 RECOMMENDATIONS) ----------
+    function runQuiz() {
+        const cause = document.getElementById('quizCause').value;
+        const timePref = document.getElementById('quizTime').value;
+        const skillPref = document.getElementById('quizSkill').value;
+        const locationPref = document.getElementById('quizLocation').value;
+        
+        // Score each programme
+        let scored = programmes.map(p => {
+            let score = 0;
+            if (p.cause === cause) score += 3;
+            if (p.commitment === timePref) score += 2;
+            if (p.skills === skillPref) score += 2;
+            if (p.location === locationPref) score += 2;
+            return { ...p, score };
+        });
+        
+        // Sort by score (highest first)
+        scored.sort((a, b) => b.score - a.score);
+        
+        // TAKE ONLY TOP 3 (max 3 recommendations)
+        let top = scored.slice(0, 3);
+        
+        // Filter out zero-score if there are any higher? Keep but show message if all zero
+        if (top.length === 0 || top[0].score === 0) {
+            document.getElementById('quizResults').innerHTML = '<div class="card" style="background:#fff3e0;">😕 No strong matches found. Try changing your preferences!</div>';
+            return;
+        }
+        
+        const resultsDiv = document.getElementById('quizResults');
+        resultsDiv.innerHTML = top.map(p => `
+            <div class="recommendation-card">
+                <h3><i class="fas fa-star" style="color:#f5b042;"></i> ${p.name}</h3>
+                <p>${p.desc}</p>
+                <div><span class="badge">${p.cause}</span> <span class="badge">${p.commitment}</span> <span class="badge">📍 ${p.location}</span> <span class="badge">🛠 ${p.skills}</span></div>
+                <p><strong>📅 Deadline:</strong> ${p.deadline}</p>
+                <button class="btn btn-primary" style="margin-top: 8px;" onclick="simulateSignup('${p.name}')">View & sign up</button>
+            </div>
+        `).join('');
+    }
+
+    // ---------- EVENT LISTENERS ----------
+    document.getElementById('interestFilter').addEventListener('change', renderBrowse);
+    document.getElementById('commitFilter').addEventListener('change', renderBrowse);
+    document.getElementById('locationFilter').addEventListener('change', renderBrowse);
+    document.getElementById('skillFilter').addEventListener('change', renderBrowse);
+    document.getElementById('resetFilters').addEventListener('click', () => {
+        document.getElementById('interestFilter').value = 'all';
+        document.getElementById('commitFilter').value = 'all';
+        document.getElementById('locationFilter').value = 'all';
+        document.getElementById('skillFilter').value = 'all';
+        renderBrowse();
+    });
+    document.getElementById('viewCompareBtn').addEventListener('click', () => { document.querySelector('[data-tab="compare"]').click(); });
+    document.getElementById('runQuizBtn').addEventListener('click', runQuiz);
+    document.getElementById('loadPeersBtn').addEventListener('click', loadPeers);
+    document.getElementById('addBusySlot').addEventListener('click', () => {
+        let start = document.getElementById('blockStart').value;
+        let end = document.getElementById('blockEnd').value;
+        if (!start || !end) { alert('Please select both start and end date/time'); return; }
+        busyEvents.push({ title: '🔴 Busy (personal)', start: start, end: end, color: '#b91c1c', textColor: 'white' });
+        refreshCalendarWithBusy();
+        alert('Busy slot added. Check calendar for conflicts with programme sessions.');
+    });
+
+    // ---------- TAB SWITCHING ----------
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabId = btn.getAttribute('data-tab');
+            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (tabId === 'calendar' && !calendarObj) initCalendar();
+            if (tabId === 'compare') updateCompareUI();
+        });
+    });
+
+    // ---------- INITIAL LOAD ----------
+    populatePeerSelect();
+    renderBrowse();
+</script>
+</body>
+</html>
