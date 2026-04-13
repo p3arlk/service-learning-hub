@@ -90,7 +90,7 @@
         .action-row {
             display: flex;
             gap: 28px;
-            margin-bottom: 48px;
+            margin-bottom: 32px;
             justify-content: center;
         }
         .action-card {
@@ -109,21 +109,39 @@
         .action-card:hover { transform: translateY(-5px); }
         .action-icon { font-size: 2.5rem; margin-bottom: 12px; }
         
-        /* Explore Section (always visible below buttons) */
-        .explore-section {
-            background: white;
+        /* Tabs below buttons */
+        .bottom-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #cbdcd6;
+            padding-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .bottom-tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
             border-radius: 40px;
-            padding: 32px;
-            margin-top: 16px;
+            color: #2c5f5a;
+            transition: 0.2s;
+        }
+        .bottom-tab-btn.active {
+            background: #00423b;
+            color: white;
+        }
+        .tab-pane {
+            display: none;
+            background: white;
+            border-radius: 32px;
+            padding: 28px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.05);
         }
-        .section-title {
-            font-size: 1.6rem;
-            margin-bottom: 24px;
-            color: #00423b;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .tab-pane.active {
+            display: block;
         }
         .categories-grid, .programme-grid {
             display: grid;
@@ -216,27 +234,14 @@
         .profile-menu a { display: block; padding: 10px 20px; cursor: pointer; color: #1e2f2a; }
         .profile-menu a:hover { background: #eef3ec; }
         .show { display: block; }
-        /* Modal overlay */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 3000;
-        }
-        .modal-content {
-            background: white;
-            max-width: 550px;
-            width: 90%;
-            border-radius: 40px;
-            padding: 32px;
-            max-height: 90vh;
-            overflow-y: auto;
+        .rank-badge {
+            display: inline-block;
+            background: #00423b;
+            color: white;
+            border-radius: 20px;
+            padding: 2px 10px;
+            font-size: 0.7rem;
+            margin-left: 8px;
         }
         @media (max-width: 800px) {
             .action-card { flex: 1; max-width: 100%; }
@@ -266,7 +271,6 @@
                 <i class="fas fa-user-circle"></i> <span id="currentUserEmail"></span> <i class="fas fa-chevron-down"></i>
             </div>
             <div class="profile-menu" id="profileMenu">
-                <a id="menuStatus"><i class="fas fa-tasks"></i> My Applications & Status</a>
                 <a id="menuLogout"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </div>
         </div>
@@ -282,23 +286,26 @@
         <div class="action-card apply" id="applyDirectBtn">
             <div class="action-icon"><i class="fas fa-paper-plane"></i></div>
             <h3>✅ Apply Now</h3>
-            <p>I know my programme. Quick application form.</p>
+            <p>Submit your ranked top 3 choices in one form.</p>
             <button class="btn-outline" style="background:white; margin-top:12px;">Apply →</button>
         </div>
         <div class="action-card explore" id="exploreFlowBtn">
             <div class="action-icon"><i class="fas fa-compass"></i></div>
             <h3>🔍 Explore & Compare</h3>
-            <p>Quiz → vertical compare → then apply.</p>
+            <p>Take quiz → get ranked recommendations → compare vertically → apply.</p>
             <button class="btn-primary" style="background:#00423b; margin-top:12px;">Start →</button>
         </div>
     </div>
 
-    <!-- EXPLORE SECTION: always visible: browse categories + compare vertically (no apply buttons inside) -->
-    <div class="explore-section" id="exploreSection">
-        <div class="section-title">
-            <i class="fas fa-tree"></i> 
-            <span>Explore all CSL Programmes</span>
-        </div>
+    <!-- BOTTOM TABS: Explore, Compare, My Applications -->
+    <div class="bottom-tabs">
+        <button class="bottom-tab-btn active" data-tab="exploreTab">📚 Explore Programmes</button>
+        <button class="bottom-tab-btn" data-tab="compareTab">⚖️ Vertical Compare</button>
+        <button class="bottom-tab-btn" data-tab="statusTab">📋 My Applications & Status</button>
+    </div>
+
+    <!-- Tab: Explore Programmes -->
+    <div id="exploreTab" class="tab-pane active">
         <div id="categoriesViewExplore">
             <div class="categories-grid" id="categoriesContainerExplore"></div>
         </div>
@@ -311,18 +318,26 @@
             <button class="btn-outline" id="backToProgrammesExploreBtn"><i class="fas fa-arrow-left"></i> Back</button>
             <div id="programmeDetailExplore"></div>
         </div>
-        
-        <!-- Compare panel (vertical compare for any selected) -->
-        <div class="compare-panel" style="margin-top: 32px;">
-            <strong><i class="fas fa-layer-group"></i> Compare shortlist (max 3)</strong> <span id="compareCountExplore">0</span> selected
-            <button id="viewVerticalCompareBtn" class="btn-primary" style="margin-left:12px;">📊 Vertical Compare</button>
+    </div>
+
+    <!-- Tab: Vertical Compare (shows current compare list) -->
+    <div id="compareTab" class="tab-pane">
+        <h2><i class="fas fa-table-list"></i> Vertical Comparison</h2>
+        <div id="verticalCompareContainerTab" style="margin-top: 20px;">
+            <p style="color:#7a8e85;">Add programmes from Explore tab using the "Compare" button, or take the quiz to auto-fill top 3.</p>
         </div>
-        <div id="verticalCompareContainer" style="margin-top: 20px;"></div>
+        <div class="compare-panel" style="margin-top: 20px;">
+            <strong>Compare shortlist:</strong> <span id="compareCountTab">0</span> selected
+            <button id="clearCompareBtn" class="btn-outline" style="margin-left:12px;">Clear All</button>
+        </div>
+    </div>
+
+    <!-- Tab: My Applications & Status (per programme) -->
+    <div id="statusTab" class="tab-pane">
+        <h2><i class="fas fa-tasks"></i> My Programme Applications</h2>
+        <div id="applicationsListContainer"></div>
     </div>
 </div>
-
-<!-- Dynamic Modal Container (for forms, status, wizard) -->
-<div id="dynamicModalContainer"></div>
 </main>
 
 <script>
@@ -333,7 +348,7 @@
         { id: "diverse", name: "Diverse Abilities", icon: "fas fa-wheelchair", description: "Support individuals with diverse needs." }
     ];
     const programmes = [
-        { id: 1, name: "Silver Reach – Youth Outreach to Seniors", category: "active", commitment: "60-80 hours", skills: "Communication & Outreach", partner: "Silver Generation Office (SGO)", placements: 400, description: "Serve as a Silver Generation Ambassador (SGA). Conduct home visits to check on seniors' wellbeing, connect them to care programmes.", partnerInfo: "SGO under AIC reaches 200,000+ seniors annually.", pastProjects: ["Island-wide home visits (50k+)", "Health screening events", "Digital literacy workshops"] },
+        { id: 1, name: "Silver Reach – Youth Outreach to Seniors", category: "active", commitment: "60-80 hours", skills: "Communication & Outreach", partner: "Silver Generation Office (SGO)", placements: 400, description: "Serve as a Silver Generation Ambassador (SGA). Conduct home visits to check on seniors' wellbeing.", partnerInfo: "SGO under AIC reaches 200,000+ seniors annually.", pastProjects: ["Island-wide home visits (50k+)", "Health screening events", "Digital literacy workshops"] },
         { id: 2, name: "Silver Sparks – Youth Advocates", category: "active", commitment: "60-80h", skills: "Event Planning", partner: "SGO & SPH Media", placements: 200, description: "Support Active Ageing Centres by planning engagement programmes.", partnerInfo: "Active Ageing Centres provide social activities.", pastProjects: ["News-sharing sessions", "Intergenerational bonding", "Wellness workshops"] },
         { id: 3, name: "Tech4Good: Digital Literacy", category: "active", commitment: "50-70h", skills: "Communication", partner: "IMDA", placements: 150, description: "Teach seniors basic digital skills — smartphones, government services.", partnerInfo: "IMDA leads digital inclusion.", pastProjects: ["Seniors Go Digital", "Community tech helpdesks", "One-on-one coaching"] },
         { id: 4, name: "Youth Mentorship Initiative", category: "children", commitment: "60h", skills: "Leadership", partner: "Mentoring Alliance", placements: 80, description: "Guide secondary school students through academic and personal development.", partnerInfo: "Partners with schools to uplift youth.", pastProjects: ["After-school study clubs", "Career exploration", "Leadership camps"] },
@@ -343,17 +358,18 @@
     ];
 
     let currentUser = null;
-    // userApplications: { email: [ { programmeId, status, appliedAt, studentName, notes } ] }
+    // userApplications: { email: [ { programmeId, status, appliedAt, studentName, matric, rank, notes } ] }
     let userApplications = {};
     let compareList = [];
     let currentCategory = null;
+    let quizRecommendations = []; // store last quiz top 3
 
     function loadData() {
-        const stored = localStorage.getItem("csl_apps_v4");
+        const stored = localStorage.getItem("csl_apps_v5");
         if (stored) userApplications = JSON.parse(stored);
     }
     function saveData() {
-        localStorage.setItem("csl_apps_v4", JSON.stringify(userApplications));
+        localStorage.setItem("csl_apps_v5", JSON.stringify(userApplications));
     }
 
     function updateProgrammeStatus(email, programmeId, newStatus) {
@@ -362,211 +378,253 @@
         if (appIndex !== -1) {
             userApplications[email][appIndex].status = newStatus;
             saveData();
+            renderStatusTab();
             return true;
         }
         return false;
     }
 
-    function addApplication(email, programmeId, studentName, matric, notes) {
-        if (!userApplications[email]) userApplications[email] = [];
-        if (userApplications[email].some(a => a.programmeId == programmeId)) return false;
-        userApplications[email].push({
-            programmeId: programmeId,
-            status: "pending",
-            appliedAt: new Date().toISOString(),
-            studentName: studentName,
-            matric: matric,
-            notes: notes
-        });
+    // Apply for multiple programmes at once (ranked choices)
+    function submitRankedApplications(rankedProgIds, studentName, matric, notes) {
+        if (!currentUser) return false;
+        if (!userApplications[currentUser.email]) userApplications[currentUser.email] = [];
+        let newApps = [];
+        for (let i = 0; i < rankedProgIds.length; i++) {
+            const progId = rankedProgIds[i];
+            if (!progId) continue;
+            const alreadyExists = userApplications[currentUser.email].some(a => a.programmeId == progId);
+            if (!alreadyExists) {
+                newApps.push({
+                    programmeId: progId,
+                    status: "pending",
+                    appliedAt: new Date().toISOString(),
+                    studentName: studentName,
+                    matric: matric,
+                    rank: i + 1,
+                    notes: notes
+                });
+            }
+        }
+        if (newApps.length === 0) return false;
+        userApplications[currentUser.email] = [...userApplications[currentUser.email], ...newApps];
         saveData();
+        renderStatusTab();
         return true;
     }
 
-    // Helper: close any open modal
-    function closeModal() {
-        const container = document.getElementById('dynamicModalContainer');
-        if (container) container.innerHTML = '';
-    }
-
-    // Show status page in modal
-    function showMyStatusPage() {
+    // Render Status Tab (per programme, with demo buttons)
+    function renderStatusTab() {
+        const container = document.getElementById('applicationsListContainer');
         if (!currentUser) return;
         const apps = userApplications[currentUser.email] || [];
         if (apps.length === 0) {
-            openModal(`
-                <div style="text-align:center; padding:20px;">
+            container.innerHTML = `
+                <div style="text-align:center; padding:40px;">
                     <i class="fas fa-inbox" style="font-size:3rem; color:#b68b40;"></i>
                     <h3>No applications yet</h3>
-                    <p>Click the <strong>Apply Now</strong> button above to submit your first application.</p>
-                    <button class="btn-primary" onclick="closeModal()">Close</button>
+                    <p>Click the <strong>Apply Now</strong> button above to submit your ranked choices.</p>
                 </div>
-            `);
+            `;
             return;
         }
-        let html = `<h2><i class="fas fa-tasks"></i> My Programme Applications & Status</h2>
-                    <p>Each programme shows individual status: Pending, Approved, or Rejected.</p>`;
+        let html = `<p>Each programme you applied to shows individual status. Demo buttons let you test status updates.</p>`;
         for (let app of apps) {
             const prog = programmes.find(p => p.id == app.programmeId);
             if (!prog) continue;
             let statusClass = "status-pending";
             let statusText = "⏳ Pending Review";
-            if (app.status === 'approved') { statusClass = "status-approved"; statusText = "✅ Approved - Offered"; }
-            if (app.status === 'rejected') { statusClass = "status-rejected"; statusText = "❌ Not Selected"; }
+            let statusIcon = "fa-clock";
+            if (app.status === 'approved') { statusClass = "status-approved"; statusText = "✅ Approved - Offered"; statusIcon = "fa-check-circle"; }
+            if (app.status === 'rejected') { statusClass = "status-rejected"; statusText = "❌ Not Selected"; statusIcon = "fa-times-circle"; }
             html += `
                 <div class="application-card">
-                    <div style="display:flex; justify-content:space-between; flex-wrap:wrap;">
-                        <h3>${prog.name}</h3>
-                        <span class="status-badge-sm ${statusClass}"><i class="fas ${app.status==='approved'?'fa-check-circle':(app.status==='rejected'?'fa-times-circle':'fa-clock')}"></i> ${statusText}</span>
+                    <div style="display:flex; justify-content:space-between; flex-wrap:wrap; align-items:center;">
+                        <div>
+                            <h3>${prog.name} ${app.rank ? `<span class="rank-badge">Rank ${app.rank}</span>` : ''}</h3>
+                            <p><strong>Applied:</strong> ${new Date(app.appliedAt).toLocaleDateString()} | <strong>Matric:</strong> ${app.matric || 'N/A'}</p>
+                        </div>
+                        <span class="status-badge-sm ${statusClass}"><i class="fas ${statusIcon}"></i> ${statusText}</span>
                     </div>
-                    <p><strong>Applied on:</strong> ${new Date(app.appliedAt).toLocaleDateString()}</p>
-                    <p><strong>Matric:</strong> ${app.matric || 'N/A'}</p>
                     ${app.notes ? `<p><strong>Notes:</strong> ${app.notes}</p>` : ''}
-                    ${app.status === 'approved' ? `<div class="success-message"><i class="fas fa-envelope-open-text"></i> Offer received! You have been accepted into ${prog.name}.</div>` : ''}
-                    ${app.status === 'pending' ? `<div style="margin-top:12px;"><button class="btn-outline" onclick="simulateOffer('${prog.id}')">🎭 Demo: Approve</button> <button class="btn-outline" style="margin-left:8px;" onclick="simulateReject('${prog.id}')">Demo: Reject</button><small style="display:block;">(Demo status toggle)</small></div>` : ''}
+                    ${app.status === 'approved' ? `<div class="success-message" style="margin-top:12px;"><i class="fas fa-envelope-open-text"></i> Congratulations! You have been offered a place in ${prog.name}.</div>` : ''}
+                    <div style="margin-top:12px;">
+                        <button class="btn-outline" onclick="demoApprove(${prog.id})" style="margin-right:8px;">✅ Demo: Approve</button>
+                        <button class="btn-outline" onclick="demoReject(${prog.id})">❌ Demo: Reject</button>
+                        <small style="margin-left:8px;">(Test status visibility)</small>
+                    </div>
                 </div>
             `;
         }
-        html += `<button class="btn-primary" style="margin-top:16px;" onclick="closeModal()">Close</button>`;
-        openModal(html);
+        container.innerHTML = html;
     }
 
-    window.simulateOffer = (progId) => { if(currentUser) { updateProgrammeStatus(currentUser.email, parseInt(progId), 'approved'); showMyStatusPage(); } };
-    window.simulateReject = (progId) => { if(currentUser) { updateProgrammeStatus(currentUser.email, parseInt(progId), 'rejected'); showMyStatusPage(); } };
+    window.demoApprove = (progId) => { if(currentUser) { updateProgrammeStatus(currentUser.email, progId, 'approved'); } };
+    window.demoReject = (progId) => { if(currentUser) { updateProgrammeStatus(currentUser.email, progId, 'rejected'); } };
 
-    function openModal(contentHtml) {
-        const container = document.getElementById('dynamicModalContainer');
-        container.innerHTML = `<div class="modal-overlay"><div class="modal-content">${contentHtml}</div></div>`;
-        // Close when clicking outside
-        const overlay = container.querySelector('.modal-overlay');
-        overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
-    }
-
-    // Apply Direct Form (modal)
-    function showApplyModal(programmeId = null) {
-        const progOptions = programmes.map(p => `<option value="${p.id}" ${programmeId == p.id ? 'selected' : ''}>${p.name}</option>`).join('');
+    // Show Apply Form (for ranked top 3 choices)
+    function showApplyForm(programmeIds = null) {
+        // If programmeIds provided (from quiz), pre-fill the selects
+        const progOptions = programmes.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+        const preselected1 = programmeIds && programmeIds[0] ? programmeIds[0] : '';
+        const preselected2 = programmeIds && programmeIds[1] ? programmeIds[1] : '';
+        const preselected3 = programmeIds && programmeIds[2] ? programmeIds[2] : '';
+        
         const formHtml = `
-            <h2><i class="fas fa-pen-alt"></i> Apply for CSL Programme</h2>
-            <form id="applyFormModal">
-                <div class="form-group"><label>Full Name *</label><input id="applyName" required placeholder="Your full name"></div>
-                <div class="form-group"><label>NTU Email</label><input value="${currentUser.email}" readonly></div>
-                <div class="form-group"><label>Matric Number *</label><input id="applyMatric" required placeholder="U1234567X"></div>
-                <div class="form-group"><label>Select Programme *</label><select id="applyProgId" required>${progOptions}</select></div>
-                <div class="form-group"><label>Additional Notes</label><textarea id="applyNotes" rows="2" placeholder="Any questions or availability..."></textarea></div>
-                <button type="submit" class="btn-primary" style="width:100%;">Submit Application</button>
-                <button type="button" class="btn-outline" style="width:100%; margin-top:12px;" onclick="closeModal()">Cancel</button>
-            </form>
+            <div id="applyModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:flex; align-items:center; justify-content:center; z-index:3000;">
+                <div style="background:white; max-width:550px; width:90%; border-radius:40px; padding:32px; max-height:90vh; overflow-y:auto;">
+                    <h2><i class="fas fa-pen-alt"></i> Submit Your Ranked Choices</h2>
+                    <p>Apply for up to 3 programmes. Each will have its own status tracking.</p>
+                    <form id="rankedApplyForm">
+                        <div class="form-group"><label>Full Name *</label><input id="rankName" required placeholder="Your full name"></div>
+                        <div class="form-group"><label>NTU Email</label><input value="${currentUser.email}" readonly></div>
+                        <div class="form-group"><label>Matric Number *</label><input id="rankMatric" required placeholder="U1234567X"></div>
+                        <div class="form-group"><label>🥇 1st Choice *</label><select id="rankChoice1" required>${progOptions}</select></div>
+                        <div class="form-group"><label>🥈 2nd Choice</label><select id="rankChoice2">${'<option value="">-- optional --</option>' + progOptions}</select></div>
+                        <div class="form-group"><label>🥉 3rd Choice</label><select id="rankChoice3">${'<option value="">-- optional --</option>' + progOptions}</select></div>
+                        <div class="form-group"><label>Additional Notes</label><textarea id="rankNotes" rows="2" placeholder="Any questions or availability..."></textarea></div>
+                        <button type="submit" class="btn-primary" style="width:100%;">Submit Applications</button>
+                        <button type="button" class="btn-outline" style="width:100%; margin-top:12px;" onclick="closeApplyModal()">Cancel</button>
+                    </form>
+                </div>
+            </div>
         `;
-        openModal(formHtml);
-        document.getElementById('applyFormModal').addEventListener('submit', (e) => {
+        document.body.insertAdjacentHTML('beforeend', formHtml);
+        
+        if (preselected1) document.getElementById('rankChoice1').value = preselected1;
+        if (preselected2) document.getElementById('rankChoice2').value = preselected2;
+        if (preselected3) document.getElementById('rankChoice3').value = preselected3;
+        
+        document.getElementById('rankedApplyForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const name = document.getElementById('applyName').value;
-            const matric = document.getElementById('applyMatric').value;
-            const progId = parseInt(document.getElementById('applyProgId').value);
-            const notes = document.getElementById('applyNotes').value;
-            if (!name || !matric || !progId) return alert("Please fill all required fields");
-            const prog = programmes.find(p => p.id === progId);
-            const success = addApplication(currentUser.email, progId, name, matric, notes);
+            const name = document.getElementById('rankName').value;
+            const matric = document.getElementById('rankMatric').value;
+            const choice1 = document.getElementById('rankChoice1').value;
+            const choice2 = document.getElementById('rankChoice2').value;
+            const choice3 = document.getElementById('rankChoice3').value;
+            const notes = document.getElementById('rankNotes').value;
+            if (!name || !matric || !choice1) return alert("Please fill name, matric, and at least 1st choice");
+            const choices = [parseInt(choice1)];
+            if (choice2) choices.push(parseInt(choice2));
+            if (choice3) choices.push(parseInt(choice3));
+            const success = submitRankedApplications(choices, name, matric, notes);
             if (success) {
-                alert(`✅ Application to "${prog.name}" submitted! Status: Pending.`);
-                closeModal();
+                alert(`✅ Applications submitted for ${choices.length} programme(s)! Check "My Applications & Status" tab for updates.`);
+                closeApplyModal();
+                // Switch to status tab
+                document.querySelector('[data-tab="statusTab"]').click();
             } else {
-                alert("You have already applied to this programme.");
+                alert("You may have already applied to some of these programmes. Duplicates were skipped.");
+                closeApplyModal();
             }
         });
     }
+    
+    window.closeApplyModal = () => {
+        const modal = document.getElementById('applyModal');
+        if (modal) modal.remove();
+    };
+    window.showApplyForm = showApplyForm;
 
-    // Explore Flow Wizard (Quiz → Compare → Apply)
-    function showExploreWizard() {
-        const wizardHtml = `
-            <h2><i class="fas fa-magic"></i> Find your best-fit programme</h2>
-            <p>Answer a few questions, and we'll recommend your top matches.</p>
-            <div style="background:#fbf8ef; border-radius:28px; padding:24px; margin-top:16px;">
-                <div class="form-group"><label>1. Which community inspires you most?</label>
-                    <select id="quizCause">
-                        <option value="active">Active Ageing – Supporting seniors</option>
-                        <option value="children">Children & Teens – Mentoring youth</option>
-                        <option value="diverse">Diverse Abilities – Inclusion support</option>
-                    </select>
-                </div>
-                <div class="form-group"><label>2. Preferred role?</label>
-                    <select id="quizRole">
-                        <option value="direct">Direct engagement (face-to-face)</option>
-                        <option value="planning">Planning & coordination</option>
-                        <option value="mixed">Mix of both</option>
-                    </select>
-                </div>
-                <div class="form-group"><label>3. Skill to develop?</label>
-                    <select id="quizSkill">
-                        <option value="comm">Communication & Outreach</option>
-                        <option value="events">Event Planning</option>
-                        <option value="leadership">Leadership & Mentoring</option>
-                    </select>
-                </div>
-                <button id="runWizardQuizBtn" class="btn-primary">Get Recommendations →</button>
+    // Quiz & Recommendations
+    function runQuizAndRecommend() {
+        const cause = document.getElementById('quizCause').value;
+        const role = document.getElementById('quizRole').value;
+        const skill = document.getElementById('quizSkill').value;
+        let scored = programmes.map(p => {
+            let score = (p.category === cause) ? 3 : 0;
+            if (role === 'direct' && p.skills.includes('Communication')) score += 2;
+            if (role === 'planning' && p.skills.includes('Event')) score += 2;
+            if ((skill === 'comm' && p.skills.includes('Communication')) || (skill === 'events' && p.skills.includes('Event'))) score += 2;
+            return {...p, score};
+        });
+        scored.sort((a,b) => b.score - a.score);
+        const top3 = scored.slice(0,3);
+        quizRecommendations = top3.map(p => p.id);
+        
+        // Add to compare list (replace existing)
+        compareList = [...top3];
+        updateCompareUI();
+        
+        // Show results with apply button
+        const resultsHtml = `
+            <h3>🎯 Your Top 3 Recommended Programmes</h3>
+            <div class="programme-grid" style="margin-top:16px;">
+                ${top3.map((p, idx) => `
+                    <div class="prog-card">
+                        <h4>${idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'} ${p.name}</h4>
+                        <span class="badge">${p.commitment}</span> <span class="badge">${p.skills}</span>
+                        <p style="margin:12px 0;">${p.description.substring(0,100)}...</p>
+                        <button class="btn-outline" onclick="viewProgrammeDetailFromQuiz(${p.id})">View Details</button>
+                    </div>
+                `).join('')}
             </div>
-            <div id="wizardResultsContainer" style="margin-top:28px;"></div>
-            <button class="btn-outline" style="margin-top:16px;" onclick="closeModal()">Close</button>
+            <div style="margin-top:24px; text-align:center;">
+                <button class="btn-primary" id="applyRankedFromQuizBtn">📝 Apply with these top 3 choices</button>
+                <button class="btn-outline" id="viewCompareFromQuizBtn" style="margin-left:12px;">📊 View Vertical Compare</button>
+            </div>
         `;
-        openModal(wizardHtml);
-        document.getElementById('runWizardQuizBtn').onclick = () => {
-            const cause = document.getElementById('quizCause').value;
-            const role = document.getElementById('quizRole').value;
-            const skill = document.getElementById('quizSkill').value;
-            let scored = programmes.map(p => {
-                let score = (p.category === cause) ? 3 : 0;
-                if (role === 'direct' && p.skills.includes('Communication')) score += 2;
-                if (role === 'planning' && p.skills.includes('Event')) score += 2;
-                if ((skill === 'comm' && p.skills.includes('Communication')) || (skill === 'events' && p.skills.includes('Event'))) score += 2;
-                return {...p, score};
-            });
-            scored.sort((a,b) => b.score - a.score);
-            const top3 = scored.slice(0,3);
-            const resultsHtml = `
-                <h3>🎯 Your top recommended programmes</h3>
-                <div class="programme-grid" style="margin-top:16px;">
-                    ${top3.map(p => `
-                        <div class="prog-card">
-                            <h4>${p.name}</h4>
-                            <span class="badge">${p.commitment}</span> <span class="badge">${p.skills}</span>
-                            <p style="margin:12px 0;">${p.description.substring(0,100)}...</p>
-                            <button class="btn-outline" onclick="addToCompareFromWizard(${p.id})">➕ Compare</button>
-                            <button class="btn-primary" onclick="applyFromWizard(${p.id})">📝 Apply</button>
-                        </div>
-                    `).join('')}
-                </div>
-                <div style="margin-top:20px;">
-                    <button class="btn-primary" id="compareTop3Btn">📊 Vertical Compare (Top 3)</button>
-                </div>
-                <div id="wizardCompareContainer" style="margin-top:20px;"></div>
-            `;
-            document.getElementById('wizardResultsContainer').innerHTML = resultsHtml;
-            
-            window.addToCompareFromWizard = (progId) => {
-                const prog = programmes.find(p => p.id === progId);
-                if (compareList.find(c => c.id === progId)) return alert("Already in compare");
-                if (compareList.length >= 3) return alert("Max 3 programmes");
-                compareList.push(prog);
-                updateCompareUIExplore();
-                alert(`Added "${prog.name}" to compare (visible in main page below).`);
-            };
-            window.applyFromWizard = (progId) => {
-                closeModal();
-                setTimeout(() => showApplyModal(progId), 100);
-            };
-            document.getElementById('compareTop3Btn').onclick = () => {
-                // add top 3 to compare list
-                for (let p of top3) {
-                    if (!compareList.find(c => c.id === p.id) && compareList.length < 3) compareList.push(p);
-                }
-                updateCompareUIExplore();
-                const container = document.getElementById('wizardCompareContainer');
-                container.innerHTML = `<div class="success-message">✅ Top 3 added to compare! Check the vertical compare section below on main page.</div>`;
-                setTimeout(() => container.innerHTML = '', 3000);
-            };
+        document.getElementById('quizResultsContainer').innerHTML = resultsHtml;
+        
+        document.getElementById('applyRankedFromQuizBtn').onclick = () => {
+            closeModal();
+            setTimeout(() => showApplyForm(quizRecommendations), 100);
+        };
+        document.getElementById('viewCompareFromQuizBtn').onclick = () => {
+            closeModal();
+            updateCompareUI();
+            document.querySelector('[data-tab="compareTab"]').click();
         };
     }
+    
+    window.viewProgrammeDetailFromQuiz = (progId) => {
+        const p = programmes.find(p => p.id === progId);
+        alert(`${p.name}\n\nPartner: ${p.partner}\nCommitment: ${p.commitment}\nSkills: ${p.skills}\n\n${p.description}`);
+    };
+    
+    // Explore Modal (Quiz)
+    function showExploreWizard() {
+        const modalHtml = `
+            <div id="quizModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:flex; align-items:center; justify-content:center; z-index:3000;">
+                <div style="background:white; max-width:550px; width:90%; border-radius:40px; padding:32px; max-height:90vh; overflow-y:auto;">
+                    <h2><i class="fas fa-magic"></i> Find Your Best-Fit Programme</h2>
+                    <p>Answer a few questions to get ranked recommendations.</p>
+                    <div class="form-group"><label>1. Which community inspires you most?</label>
+                        <select id="quizCause">
+                            <option value="active">Active Ageing – Supporting seniors</option>
+                            <option value="children">Children & Teens – Mentoring youth</option>
+                            <option value="diverse">Diverse Abilities – Inclusion support</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>2. Preferred role?</label>
+                        <select id="quizRole">
+                            <option value="direct">Direct engagement (face-to-face)</option>
+                            <option value="planning">Planning & coordination</option>
+                            <option value="mixed">Mix of both</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>3. Skill to develop?</label>
+                        <select id="quizSkill">
+                            <option value="comm">Communication & Outreach</option>
+                            <option value="events">Event Planning</option>
+                            <option value="leadership">Leadership & Mentoring</option>
+                        </select>
+                    </div>
+                    <button id="runQuizBtnModal" class="btn-primary" style="width:100%;">Get Recommendations →</button>
+                    <div id="quizResultsContainer" style="margin-top:24px;"></div>
+                    <button class="btn-outline" style="width:100%; margin-top:16px;" onclick="closeQuizModal()">Close</button>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        document.getElementById('runQuizBtnModal').onclick = runQuizAndRecommend;
+    }
+    
+    window.closeQuizModal = () => {
+        const modal = document.getElementById('quizModal');
+        if (modal) modal.remove();
+    };
 
-    // Explore Section UI (categories, programmes, compare - NO APPLY BUTTONS inside)
+    // Explore Section UI (categories, programmes, compare buttons)
     function renderCategoriesExplore() {
         const container = document.getElementById('categoriesContainerExplore');
         container.innerHTML = categories.map(cat => `
@@ -617,24 +675,29 @@
         if (compareList.find(c => c.id === progId)) return alert("Already in compare");
         if (compareList.length >= 3) return alert("Max 3 programmes");
         compareList.push(prog);
-        updateCompareUIExplore();
-        alert(`Added "${prog.name}" to compare`);
+        updateCompareUI();
+        alert(`Added "${prog.name}" to compare. View in "Vertical Compare" tab.`);
     };
-    window.removeFromCompareExplore = function(id) {
+    window.removeFromCompare = function(id) {
         compareList = compareList.filter(p => p.id !== id);
-        updateCompareUIExplore();
+        updateCompareUI();
     };
-    function updateCompareUIExplore() {
-        document.getElementById('compareCountExplore').innerText = compareList.length;
-        const container = document.getElementById('verticalCompareContainer');
-        if (compareList.length === 0) { container.innerHTML = '<p style="padding:16px;">Select programmes from above to compare vertically.</p>'; return; }
-        let tableHtml = `<div class="vertical-compare"><table class="compare-vertical-table"><thead><tr><th>Attribute</th>${compareList.map(p => `<th>${p.name} <button class="btn-outline" style="font-size:0.7rem;" onclick="removeFromCompareExplore(${p.id})">✖</button></th>`).join('')}</tr></thead><tbody>
+    
+    function updateCompareUI() {
+        document.getElementById('compareCountTab').innerText = compareList.length;
+        const container = document.getElementById('verticalCompareContainerTab');
+        if (compareList.length === 0) {
+            container.innerHTML = '<p style="padding:16px; color:#7a8e85;">No programmes selected. Add from Explore tab using "Compare" button, or take the quiz.</p>';
+            return;
+        }
+        let tableHtml = `<div class="vertical-compare"><table class="compare-vertical-table"><thead><tr><th>Attribute</th>${compareList.map(p => `<th>${p.name} <button class="btn-outline" style="font-size:0.7rem;" onclick="removeFromCompare(${p.id})">✖</button></th>`).join('')}</tr></thead><tbody>
             ${renderCompareRow("Category", p => categories.find(c=>c.id===p.category)?.name)}
             ${renderCompareRow("Commitment", p => p.commitment)}
             ${renderCompareRow("Skills", p => p.skills)}
             ${renderCompareRow("Partner", p => p.partner)}
             ${renderCompareRow("Description", p => p.description.substring(0,110)+"...")}
             ${renderCompareRow("Past Projects", p => `<ul><li>${p.pastProjects[0]}</li><li>${p.pastProjects[1] || ''}</li></ul>`)}
+            <tr><th>Action</th>${compareList.map(p => `<td><button class="btn-primary" onclick="showApplyForm([${p.id}])">Apply for this</button></td>`).join('')}</tr>
         </tbody></table></div>`;
         container.innerHTML = tableHtml;
     }
@@ -642,7 +705,7 @@
         return `<tr><th>${label}</th>${compareList.map(p => `<td>${extractor(p)}</td>`).join('')}</tr>`;
     }
     
-    // Back buttons
+    // Back buttons for explore
     document.getElementById('backToCategoriesExploreBtn').onclick = () => {
         document.getElementById('categoriesViewExplore').style.display = 'block';
         document.getElementById('programmesViewExplore').style.display = 'none';
@@ -651,13 +714,26 @@
     document.getElementById('backToProgrammesExploreBtn').onclick = () => {
         if (currentCategory) selectCategoryExplore(currentCategory);
     };
-    document.getElementById('viewVerticalCompareBtn').onclick = () => {
-        if (compareList.length === 0) alert("Add at least one programme to compare using the 'Compare' button on programme cards");
-        else updateCompareUIExplore();
+    document.getElementById('clearCompareBtn').onclick = () => {
+        compareList = [];
+        updateCompareUI();
     };
     
+    // Tab switching
+    document.querySelectorAll('.bottom-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabId = btn.getAttribute('data-tab');
+            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.bottom-tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (tabId === 'compareTab') updateCompareUI();
+            if (tabId === 'statusTab') renderStatusTab();
+        });
+    });
+    
     // Action buttons
-    document.getElementById('applyDirectBtn').onclick = () => showApplyModal();
+    document.getElementById('applyDirectBtn').onclick = () => showApplyForm();
     document.getElementById('exploreFlowBtn').onclick = () => showExploreWizard();
     
     // Profile menu
@@ -665,7 +741,6 @@
     const profileMenu = document.getElementById('profileMenu');
     profileBtn.onclick = (e) => { e.stopPropagation(); profileMenu.classList.toggle('show'); };
     document.addEventListener('click', () => profileMenu.classList.remove('show'));
-    document.getElementById('menuStatus').onclick = () => { profileMenu.classList.remove('show'); showMyStatusPage(); };
     document.getElementById('menuLogout').onclick = () => { logout(); };
     
     function logout() {
@@ -687,7 +762,8 @@
         document.getElementById('mainApp').style.display = 'block';
         loadData();
         renderCategoriesExplore();
-        updateCompareUIExplore();
+        updateCompareUI();
+        renderStatusTab();
     };
 </script>
 </body>
