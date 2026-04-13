@@ -285,7 +285,7 @@
     <div class="action-row">
         <div class="action-card apply" id="applyDirectBtn">
             <div class="action-icon"><i class="fas fa-paper-plane"></i></div>
-            <h3>✅ Apply Now</h3>
+            <h3>✔️ Apply Now</h3>
             <p>Submit your ranked top 3 choices in one form.</p>
             <button class="btn-outline" style="background:white; margin-top:12px;">Apply →</button>
         </div>
@@ -525,7 +525,7 @@
     };
     window.showApplyForm = showApplyForm;
 
-    // Quiz & Recommendations
+    // Quiz & Recommendations - FIXED VERSION
     function runQuizAndRecommend() {
         const cause = document.getElementById('quizCause').value;
         const role = document.getElementById('quizRole').value;
@@ -545,7 +545,7 @@
         compareList = [...top3];
         updateCompareUI();
         
-        // Show results with apply button
+        // Show results with working buttons
         const resultsHtml = `
             <h3>🎯 Your Top 3 Recommended Programmes</h3>
             <div class="programme-grid" style="margin-top:16px;">
@@ -565,27 +565,41 @@
         `;
         document.getElementById('quizResultsContainer').innerHTML = resultsHtml;
         
-        document.getElementById('applyRankedFromQuizBtn').onclick = () => {
-            closeModal();
-            setTimeout(() => showApplyForm(quizRecommendations), 100);
-        };
-        document.getElementById('viewCompareFromQuizBtn').onclick = () => {
-            closeModal();
-            updateCompareUI();
-            document.querySelector('[data-tab="compareTab"]').click();
-        };
+        // FIXED: Use event listeners with proper closure
+        const applyBtn = document.getElementById('applyRankedFromQuizBtn');
+        const compareBtn = document.getElementById('viewCompareFromQuizBtn');
+        
+        if (applyBtn) {
+            applyBtn.onclick = function() {
+                closeQuizModal();
+                setTimeout(function() {
+                    showApplyForm(quizRecommendations);
+                }, 100);
+            };
+        }
+        
+        if (compareBtn) {
+            compareBtn.onclick = function() {
+                closeQuizModal();
+                // Switch to compare tab
+                document.querySelectorAll('.bottom-tab-btn').forEach(function(btn) {
+                    if (btn.getAttribute('data-tab') === 'compareTab') {
+                        btn.click();
+                    }
+                });
+                // Ensure compare UI is updated
+                setTimeout(function() {
+                    updateCompareUI();
+                }, 50);
+            };
+        }
     }
     
-    window.viewProgrammeDetailFromQuiz = (progId) => {
-        const p = programmes.find(p => p.id === progId);
-        alert(`${p.name}\n\nPartner: ${p.partner}\nCommitment: ${p.commitment}\nSkills: ${p.skills}\n\n${p.description}`);
-    };
-    
-    // Explore Modal (Quiz)
+    // Explore Modal (Quiz) - FIXED VERSION
     function showExploreWizard() {
         const modalHtml = `
             <div id="quizModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:flex; align-items:center; justify-content:center; z-index:3000;">
-                <div style="background:white; max-width:550px; width:90%; border-radius:40px; padding:32px; max-height:90vh; overflow-y:auto;">
+                <div style="background:white; max-width:600px; width:90%; border-radius:40px; padding:32px; max-height:90vh; overflow-y:auto;">
                     <h2><i class="fas fa-magic"></i> Find Your Best-Fit Programme</h2>
                     <p>Answer a few questions to get ranked recommendations.</p>
                     <div class="form-group"><label>1. Which community inspires you most?</label>
@@ -616,10 +630,22 @@
             </div>
         `;
         document.body.insertAdjacentHTML('beforeend', modalHtml);
-        document.getElementById('runQuizBtnModal').onclick = runQuizAndRecommend;
+        
+        const runBtn = document.getElementById('runQuizBtnModal');
+        if (runBtn) {
+            runBtn.onclick = runQuizAndRecommend;
+        }
     }
     
-    window.closeQuizModal = () => {
+    // View programme details from quiz
+    window.viewProgrammeDetailFromQuiz = function(progId) {
+        const p = programmes.find(p => p.id === progId);
+        if (p) {
+            alert(`📌 ${p.name}\n\nPartner: ${p.partner}\nCommitment: ${p.commitment}\nSkills: ${p.skills}\n\n📖 Description: ${p.description}\n\n📋 Past Projects: ${p.pastProjects.join(', ')}`);
+        }
+    };
+    
+    window.closeQuizModal = function() {
         const modal = document.getElementById('quizModal');
         if (modal) modal.remove();
     };
