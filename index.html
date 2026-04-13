@@ -94,15 +94,31 @@
             justify-content: center;
         }
         .action-card {
-            flex: 0 0 calc(50% - 14px);
-            max-width: 380px;
+            flex: 1;
+            max-width: 400px;
+            min-width: 280px;
             background: white;
             border-radius: 48px;
-            padding: 28px 24px;
+            padding: 32px 24px;
             text-align: center;
             cursor: pointer;
             transition: 0.25s;
             box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 280px;
+        }
+        
+        .action-card .action-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .action-card button {
+            margin-top: auto;
         }
         .action-card.apply { background: #00423b; color: white; }
         .action-card.explore { background: white; border: 2px solid #00423b; }
@@ -143,11 +159,24 @@
         .tab-pane.active {
             display: block;
         }
-        .categories-grid, .programme-grid {
+        .categories-grid,.programme-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 24px;
             margin-top: 16px;
+        }
+        
+        /* Responsive: 2 columns on tablets, 1 column on mobile */
+        @media (max-width: 900px) {
+            .categories-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
         }
         .prog-card {
             background: #fff;
@@ -156,6 +185,37 @@
             border: 1px solid #e2ede8;
             cursor: pointer;
             transition: 0.2s;
+        }
+        /* Make category cards bigger */
+        .categories-grid .prog-card {
+            padding: 32px 24px;
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .categories-grid .prog-card .category-icon {
+            margin-bottom: 16px;
+        }
+        
+        .categories-grid .prog-card .category-icon i {
+            font-size: 3rem;
+            color: #00423b;
+        }
+        
+        .categories-grid .prog-card h3 {
+            font-size: 1.6rem;
+            margin-bottom: 12px;
+            color: #00423b;
+        }
+        
+        .categories-grid .prog-card p {
+            font-size: 1rem;
+            line-height: 1.4;
+            margin-bottom: 16px;
+            color: #4a6a5e;
         }
         .badge {
             background: #eef3ec;
@@ -244,8 +304,39 @@
             margin-left: 8px;
         }
         @media (max-width: 800px) {
-            .action-card { flex: 1; max-width: 100%; }
-            .action-row { flex-direction: column; align-items: center; }
+            .action-card { 
+                flex: 1; 
+                max-width: 100%; 
+                min-width: auto;
+            }
+            .action-row { 
+                flex-direction: column; 
+                align-items: center; 
+                gap: 20px;
+            }
+        }
+        /* Fix for quiz results grid */
+        #quizResultsContainer .programme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 16px;
+        }
+        
+        #quizResultsContainer .prog-card {
+            cursor: default;
+            padding: 20px;
+        }
+        
+        #quizResultsContainer .prog-card h4 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #00423b;
+        }
+        
+        #quizResultsContainer {
+            max-height: 500px;
+            overflow-y: auto;
         }
     </style>
 </head>
@@ -284,16 +375,20 @@
     <!-- TWO ACTION BUTTONS -->
     <div class="action-row">
         <div class="action-card apply" id="applyDirectBtn">
-            <div class="action-icon"><i class="fas fa-paper-plane"></i></div>
-            <h3>✔️ Apply Now</h3>
-            <p>Submit your ranked top 3 choices in one form.</p>
-            <button class="btn-outline" style="background:white; margin-top:12px;">Apply →</button>
+            <div class="action-content">
+                <div class="action-icon"><i class="fas fa-paper-plane"></i></div>
+                <h3>📝 Apply Now</h3>
+                <p>Submit your top 3 choices.</p>
+            </div>
+            <button class="btn-outline" style="background:white;">Apply →</button>
         </div>
         <div class="action-card explore" id="exploreFlowBtn">
-            <div class="action-icon"><i class="fas fa-compass"></i></div>
-            <h3>🔍 Explore & Compare</h3>
-            <p>Take quiz → get ranked recommendations → compare vertically → apply.</p>
-            <button class="btn-primary" style="background:#00423b; margin-top:12px;">Start →</button>
+            <div class="action-content">
+                <div class="action-icon"><i class="fas fa-compass"></i></div>
+                <h3>🔍 Explore Now</h3>
+                <p>Take quiz and get recommendations.</p>
+            </div>
+            <button class="btn-primary" style="background:#00423b;">Start →</button>
         </div>
     </div>
 
@@ -386,30 +481,33 @@
 
     // Apply for multiple programmes at once (ranked choices)
     function submitRankedApplications(rankedProgIds, studentName, matric, notes) {
-        if (!currentUser) return false;
+        if (!currentUser) return { success: false, alreadySubmitted: false };
         if (!userApplications[currentUser.email]) userApplications[currentUser.email] = [];
+        
+        // Check if user has already submitted ANY application
+        if (userApplications[currentUser.email].length > 0) {
+            return { success: false, alreadySubmitted: true };
+        }
+        
         let newApps = [];
         for (let i = 0; i < rankedProgIds.length; i++) {
             const progId = rankedProgIds[i];
             if (!progId) continue;
-            const alreadyExists = userApplications[currentUser.email].some(a => a.programmeId == progId);
-            if (!alreadyExists) {
-                newApps.push({
-                    programmeId: progId,
-                    status: "pending",
-                    appliedAt: new Date().toISOString(),
-                    studentName: studentName,
-                    matric: matric,
-                    rank: i + 1,
-                    notes: notes
-                });
-            }
+            newApps.push({
+                programmeId: progId,
+                status: "pending",
+                appliedAt: new Date().toISOString(),
+                studentName: studentName,
+                matric: matric,
+                rank: i + 1,
+                notes: notes
+            });
         }
-        if (newApps.length === 0) return false;
+        if (newApps.length === 0) return { success: false, alreadySubmitted: false };
         userApplications[currentUser.email] = [...userApplications[currentUser.email], ...newApps];
         saveData();
         renderStatusTab();
-        return true;
+        return { success: true, alreadySubmitted: false };
     }
 
     // Render Status Tab (per programme, with demo buttons)
@@ -496,25 +594,82 @@
         
         document.getElementById('rankedApplyForm').addEventListener('submit', (e) => {
             e.preventDefault();
+            
+            // Check if user already has applications
+            if (userApplications[currentUser.email] && userApplications[currentUser.email].length > 0) {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'success-message';
+                msgDiv.style.backgroundColor = '#fff0db';
+                msgDiv.style.color = '#b45f06';
+                msgDiv.innerHTML = `<i class="fas fa-info-circle"></i> You have already submitted an application. Please check the <strong>My Applications & Status</strong> tab for updates.`;
+                
+                const form = document.getElementById('rankedApplyForm');
+                const existingMsg = form.querySelector('.submission-message');
+                if (existingMsg) existingMsg.remove();
+                msgDiv.classList.add('submission-message');
+                form.insertBefore(msgDiv, form.firstChild);
+                return;
+            }
+            
             const name = document.getElementById('rankName').value;
             const matric = document.getElementById('rankMatric').value;
             const choice1 = document.getElementById('rankChoice1').value;
             const choice2 = document.getElementById('rankChoice2').value;
             const choice3 = document.getElementById('rankChoice3').value;
             const notes = document.getElementById('rankNotes').value;
-            if (!name || !matric || !choice1) return alert("Please fill name, matric, and at least 1st choice");
+            if (!name || !matric || !choice1) {
+                alert("Please fill name, matric, and at least 1st choice");
+                return;
+            }
             const choices = [parseInt(choice1)];
             if (choice2) choices.push(parseInt(choice2));
             if (choice3) choices.push(parseInt(choice3));
-            const success = submitRankedApplications(choices, name, matric, notes);
-            if (success) {
-                alert(`✅ Applications submitted for ${choices.length} programme(s)! Check "My Applications & Status" tab for updates.`);
-                closeApplyModal();
-                // Switch to status tab
-                document.querySelector('[data-tab="statusTab"]').click();
-            } else {
-                alert("You may have already applied to some of these programmes. Duplicates were skipped.");
-                closeApplyModal();
+            
+            const result = submitRankedApplications(choices, name, matric, notes);
+            
+            if (result.success) {
+                // Show success message and disable form
+                const form = document.getElementById('rankedApplyForm');
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'success-message';
+                msgDiv.innerHTML = `<i class="fas fa-check-circle"></i> ✅ Application submitted successfully! Check the <strong>My Applications & Status</strong> tab for real-time status updates.`;
+                form.insertBefore(msgDiv, form.firstChild);
+                
+                // Disable all form inputs and button
+                form.querySelectorAll('input, select, textarea, button').forEach(field => {
+                    field.disabled = true;
+                });
+                
+                // Add a close button
+                const closeBtn = document.createElement('button');
+                closeBtn.type = 'button';
+                closeBtn.className = 'btn-outline';
+                closeBtn.style.marginTop = '16px';
+                closeBtn.innerHTML = 'Close';
+                closeBtn.onclick = () => closeApplyModal();
+                form.appendChild(closeBtn);
+                
+                // Remove submit button styling
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) submitBtn.style.display = 'none';
+                
+                renderStatusTab();
+            } else if (result.alreadySubmitted) {
+                const form = document.getElementById('rankedApplyForm');
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'success-message';
+                msgDiv.style.backgroundColor = '#fff0db';
+                msgDiv.style.color = '#b45f06';
+                msgDiv.innerHTML = `<i class="fas fa-info-circle"></i> You have already submitted an application. Please check the <strong>My Applications & Status</strong> tab for updates.`;
+                const existingMsg = form.querySelector('.submission-message');
+                if (existingMsg) existingMsg.remove();
+                msgDiv.classList.add('submission-message');
+                form.insertBefore(msgDiv, form.firstChild);
+                
+                // Disable form
+                form.querySelectorAll('input, select, textarea, button').forEach(field => {
+                    field.disabled = true;
+                });
             }
         });
     }
@@ -547,20 +702,25 @@
         
         // Show results with working buttons
         const resultsHtml = `
-            <h3>🎯 Your Top 3 Recommended Programmes</h3>
-            <div class="programme-grid" style="margin-top:16px;">
+            <h3 style="margin-bottom: 16px;">🎯 Your Top 3 Recommended Programmes</h3>
+            <div class="programme-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px;">
                 ${top3.map((p, idx) => `
-                    <div class="prog-card">
-                        <h4>${idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'} ${p.name}</h4>
-                        <span class="badge">${p.commitment}</span> <span class="badge">${p.skills}</span>
-                        <p style="margin:12px 0;">${p.description.substring(0,100)}...</p>
-                        <button class="btn-outline" onclick="viewProgrammeDetailFromQuiz(${p.id})">View Details</button>
+                    <div class="prog-card" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+                        <div>
+                            <h4 style="font-size: 1.1rem; margin-bottom: 8px; color: #00423b;">${idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'} ${p.name}</h4>
+                            <div style="margin: 8px 0;">
+                                <span class="badge">⏱ ${p.commitment}</span>
+                                <span class="badge">🛠 ${p.skills}</span>
+                            </div>
+                            <p style="margin: 12px 0; font-size: 0.85rem; line-height: 1.4; color: #4a6a5e;">${p.description.substring(0, 100)}...</p>
+                        </div>
+                        <button class="btn-outline" style="margin-top: 12px; align-self: flex-start;" onclick="viewProgrammeDetailFromQuiz(${p.id})">📖 View Details</button>
                     </div>
                 `).join('')}
             </div>
-            <div style="margin-top:24px; text-align:center;">
-                <button class="btn-primary" id="applyRankedFromQuizBtn">📝 Apply with these top 3 choices</button>
-                <button class="btn-outline" id="viewCompareFromQuizBtn" style="margin-left:12px;">📊 View Vertical Compare</button>
+            <div style="margin-top: 28px; text-align: center; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+                <button class="btn-primary" id="applyRankedFromQuizBtn" style="padding: 12px 24px;">📝 Apply with these top 3 choices</button>
+                <button class="btn-outline" id="viewCompareFromQuizBtn" style="padding: 12px 24px;">📊 View Vertical Compare</button>
             </div>
         `;
         document.getElementById('quizResultsContainer').innerHTML = resultsHtml;
@@ -655,10 +815,10 @@
         const container = document.getElementById('categoriesContainerExplore');
         container.innerHTML = categories.map(cat => `
             <div class="prog-card" onclick="selectCategoryExplore('${cat.id}')">
-                <div><i class="${cat.icon}" style="font-size:2rem; color:#00423b;"></i></div>
-                <h3>${cat.name}</h3>
-                <p>${cat.description}</p>
-                <span class="badge">View →</span>
+                <div class="category-icon"><i class="${cat.icon}" style="font-size:3rem; color:#00423b;"></i></div>
+                <h3 style="font-size:1.5rem; margin:12px 0 8px;">${cat.name}</h3>
+                <p style="font-size:0.95rem; line-height:1.4;">${cat.description}</p>
+                <span class="badge" style="margin-top:12px; display:inline-block;">View programmes →</span>
             </div>
         `).join('');
     }
@@ -770,6 +930,11 @@
     document.getElementById('menuLogout').onclick = () => { logout(); };
     
     function logout() {
+        // Clear all applications for demo purposes when logging out
+        if (currentUser && userApplications[currentUser.email]) {
+            delete userApplications[currentUser.email];
+            saveData();
+        }
         currentUser = null;
         document.getElementById('loginOverlay').style.display = 'flex';
         document.getElementById('mainApp').style.display = 'none';
